@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## About Me
 
-Canadian born, I was raise North of Dallas in Frisco, Texas. Having found a passion for taking care of animals early on, I have been driven throughout my education by the motivation to attend veterinary school and become a wildlife rescue veterinarian. 
+Canadian born, I was raised North of Dallas in Frisco, Texas. Having found a passion for taking care of animals early on, I have been driven throughout my education by the motivation to attend veterinary school and become a wildlife rescue veterinarian. I am currently in the application and interview process and am very excited for what's in store!
 
 ### Interests
 
