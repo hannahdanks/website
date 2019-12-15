@@ -1,0 +1,18 @@
+---
+title: "About Me"
+author: "HD"
+date: "12/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About Me
+
+Canadian born, I was raise North of Dallas in Frisco, Texas. Having found a passion for taking care of animals early on, I have been driven throughout my education by the motivation to attend veterinary school and become a wildlife rescue veterinarian. 
+
+### Interests
+
+In my free time, I enjoying all things nature. From hiking and biking, I love being outside. In addition, I run enjoy running half marathons and triathlons.

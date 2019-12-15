@@ -1,0 +1,421 @@
+---
+pdf_document: default
+author: "Hannah Danks"
+date: "10/15/2019"
+output:
+  html_document: default
+  pdf_document: default
+title: "Exploratory Data Analysis"
+html_document: default
+---
+
+
+
+<pre class="r"><code>TeenPregnancy &lt;- read.csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&quot;)
+Election16 &lt;- read.csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&quot;)</code></pre>
+<p>##Intro</p>
+<p>###Teen Pregnancy
+This dataset shows rates of teenage girls pregnant per 1000 teenage girls in each state. It also has variables for Civil War role (i.e. whether that state was a border, confederate, union, or other) and for percent of people who attened church in the previous week from that state. This dataset had interesting variables that I thought would compare well to an election. I got this dataset from <a href="https://vincentarelbundock.github.io/Rdatasets/datasets.html" class="uri">https://vincentarelbundock.github.io/Rdatasets/datasets.html</a>.</p>
+<p>###2016 Election
+This dataset has variables for state name, income per capita, percent high school graduates, percent college graduates, and percent with advanced degrees. They have a Democratic lean-Republican lean variable and lastly a variable for whether Trump won the state or not. I am interested to see the demographics of Trump voters instead of generalizations that often come from the media. I got this dataset from <a href="https://vincentarelbundock.github.io/Rdatasets/datasets.html" class="uri">https://vincentarelbundock.github.io/Rdatasets/datasets.html</a> as well.</p>
+<p>###Associations
+I expect the states with more people attending church to have voted for Trump as I believe religious people are more likely to vote for him. In addition, I anticipate that confederate states will be more likely to be Trump states as, historically, they have been of the Republican demographic. Lastly, I anticipate their to be more teenage pregnancy in states that support Trump as they would likely have more stringent laws on abortion as that is typically a Republican value.</p>
+<p>##Tidying: Rearranging Wide/Long</p>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tidyr)
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>TeenPregnancy &lt;- select(TeenPregnancy, -c(X)) %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 50
+## Variables: 4
+## $ State    &lt;fct&gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA, HI, IA, ID, IL, IN, …
+## $ CivilWar &lt;fct&gt; O, C, C, O, U, O, U, U, C, C, O, U, O, U, U, U, B, C, U, U, …
+## $ Church   &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32, 35, …
+## $ Teen     &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57, 53, …</code></pre>
+<pre class="r"><code>Election16 &lt;- select(Election16, -c(X, State))
+colnames(Election16)[colnames(Election16) == &quot;Abr&quot;] &lt;- &quot;State&quot;
+glimpse(Election16)</code></pre>
+<pre><code>## Observations: 50
+## Variables: 7
+## $ State    &lt;fct&gt; AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, …
+## $ Income   &lt;int&gt; 43623, 72515, 50255, 41371, 61818, 60629, 70331, 60509, 4750…
+## $ HS       &lt;dbl&gt; 84.3, 92.1, 86.0, 84.8, 81.8, 90.7, 89.9, 88.4, 86.9, 85.4, …
+## $ BA       &lt;dbl&gt; 23.5, 28.0, 27.5, 21.1, 31.4, 38.1, 37.6, 30.0, 27.3, 28.8, …
+## $ Adv      &lt;dbl&gt; 8.7, 10.1, 10.2, 7.5, 11.6, 14.0, 16.6, 12.2, 9.8, 10.7, 10.…
+## $ Dem.Rep  &lt;int&gt; -17, -17, -1, -7, 16, -1, 11, 6, 1, -4, 21, -30, 11, -6, -3,…
+## $ TrumpWin &lt;int&gt; 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, …</code></pre>
+<p>I subtracted the X column from both of the datasets. I also got rid of the full name for State in Election16 and changed the abbreviation column to “State” in order to match the other dataset</p>
+<pre class="r"><code>wideteenpreg &lt;- TeenPregnancy %&gt;% pivot_wider(names_from = &quot;CivilWar&quot;, 
+    values_from = &quot;State&quot;)
+wideelection16 &lt;- Election16 %&gt;% pivot_wider(names_from = &quot;TrumpWin&quot;, 
+    values_from = &quot;State&quot;)
+colnames(wideelection16)[colnames(wideelection16) == &quot;1&quot;] &lt;- &quot;Win&quot;
+colnames(wideelection16)[colnames(wideelection16) == &quot;0&quot;] &lt;- &quot;Lose&quot;
+glimpse(wideteenpreg)</code></pre>
+<pre><code>## Observations: 50
+## Variables: 6
+## $ Church &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32, 35, 33…
+## $ Teen   &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57, 53, 53…
+## $ O      &lt;fct&gt; AK, NA, NA, AZ, NA, CO, NA, NA, NA, NA, HI, NA, ID, NA, NA, NA…
+## $ C      &lt;fct&gt; NA, AL, AR, NA, NA, NA, NA, NA, FL, GA, NA, NA, NA, NA, NA, NA…
+## $ U      &lt;fct&gt; NA, NA, NA, NA, CA, NA, CT, DE, NA, NA, NA, IA, NA, IL, IN, KS…
+## $ B      &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…</code></pre>
+<pre class="r"><code>glimpse(wideelection16)</code></pre>
+<pre><code>## Observations: 50
+## Variables: 7
+## $ Income  &lt;int&gt; 43623, 72515, 50255, 41371, 61818, 60629, 70331, 60509, 47507…
+## $ HS      &lt;dbl&gt; 84.3, 92.1, 86.0, 84.8, 81.8, 90.7, 89.9, 88.4, 86.9, 85.4, 9…
+## $ BA      &lt;dbl&gt; 23.5, 28.0, 27.5, 21.1, 31.4, 38.1, 37.6, 30.0, 27.3, 28.8, 3…
+## $ Adv     &lt;dbl&gt; 8.7, 10.1, 10.2, 7.5, 11.6, 14.0, 16.6, 12.2, 9.8, 10.7, 10.5…
+## $ Dem.Rep &lt;int&gt; -17, -17, -1, -7, 16, -1, 11, 6, 1, -4, 21, -30, 11, -6, -3, …
+## $ Win     &lt;fct&gt; AL, AK, AZ, AR, NA, NA, NA, NA, FL, GA, NA, ID, NA, IN, IA, K…
+## $ Lose    &lt;fct&gt; NA, NA, NA, NA, CA, CO, CT, DE, NA, NA, HI, NA, IL, NA, NA, N…</code></pre>
+<p>I widened TeenPregnancy so that each variable for Civil War was it’s own column and the values for that were the state. Similarily, I widened Election16 data so that whether Trump won or lost had it’s own column by state. The data is now untidied.</p>
+<pre class="r"><code>TeenPregnancy1 &lt;- wideteenpreg %&gt;% pivot_longer(cols = c(3:6), 
+    names_to = &quot;CivilWar&quot;, values_to = &quot;State&quot;) %&gt;% na.omit() %&gt;% 
+    glimpse()</code></pre>
+<pre><code>## Observations: 50
+## Variables: 4
+## $ Church   &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32, 35, …
+## $ Teen     &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57, 53, …
+## $ CivilWar &lt;chr&gt; &quot;O&quot;, &quot;C&quot;, &quot;C&quot;, &quot;O&quot;, &quot;U&quot;, &quot;O&quot;, &quot;U&quot;, &quot;U&quot;, &quot;C&quot;, &quot;C&quot;, &quot;O&quot;, &quot;U&quot;, …
+## $ State    &lt;fct&gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA, HI, IA, ID, IL, IN, …</code></pre>
+<pre class="r"><code>Election161 &lt;- wideelection16 %&gt;% pivot_longer(cols = c(6:7), 
+    names_to = &quot;TrumpWin&quot;, values_to = &quot;State&quot;) %&gt;% na.omit() %&gt;% 
+    glimpse()</code></pre>
+<pre><code>## Observations: 50
+## Variables: 7
+## $ Income   &lt;int&gt; 43623, 72515, 50255, 41371, 61818, 60629, 70331, 60509, 4750…
+## $ HS       &lt;dbl&gt; 84.3, 92.1, 86.0, 84.8, 81.8, 90.7, 89.9, 88.4, 86.9, 85.4, …
+## $ BA       &lt;dbl&gt; 23.5, 28.0, 27.5, 21.1, 31.4, 38.1, 37.6, 30.0, 27.3, 28.8, …
+## $ Adv      &lt;dbl&gt; 8.7, 10.1, 10.2, 7.5, 11.6, 14.0, 16.6, 12.2, 9.8, 10.7, 10.…
+## $ Dem.Rep  &lt;int&gt; -17, -17, -1, -7, 16, -1, 11, 6, 1, -4, 21, -30, 11, -6, -3,…
+## $ TrumpWin &lt;chr&gt; &quot;Win&quot;, &quot;Win&quot;, &quot;Win&quot;, &quot;Win&quot;, &quot;Lose&quot;, &quot;Lose&quot;, &quot;Lose&quot;, &quot;Lose&quot;, …
+## $ State    &lt;fct&gt; AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, …</code></pre>
+<p>I used pivot_longer here to recombine the Civil War values to one column and return State to it’s in own. I also used pivot_longer to recombine TrumpWin into one column and return State to a separate one.</p>
+<p>##Joining/Merging</p>
+<pre class="r"><code>FullData &lt;- full_join(TeenPregnancy1, Election161, by = c(&quot;State&quot;))
+FullData[c(4, 1, 2, 3, 5, 6, 7, 8, 9, 10)]</code></pre>
+<pre><code>## # A tibble: 50 x 10
+##    State Church  Teen CivilWar Income    HS    BA   Adv Dem.Rep TrumpWin
+##    &lt;fct&gt;  &lt;int&gt; &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+##  1 AK        26    64 O         72515  92.1  28    10.1     -17 Win     
+##  2 AL        46    62 C         43623  84.3  23.5   8.7     -17 Win     
+##  3 AR        45    73 C         41371  84.8  21.1   7.5      -7 Win     
+##  4 AZ        33    60 O         50255  86    27.5  10.2      -1 Win     
+##  5 CA        28    59 U         61818  81.8  31.4  11.6      16 Lose    
+##  6 CO        25    50 O         60629  90.7  38.1  14        -1 Lose    
+##  7 CT        25    44 U         70331  89.9  37.6  16.6      11 Lose    
+##  8 DE        35    67 U         60509  88.4  30    12.2       6 Lose    
+##  9 FL        32    60 C         47507  86.9  27.3   9.8       1 Win     
+## 10 GA        39    64 C         49620  85.4  28.8  10.7      -4 Win     
+## # … with 40 more rows</code></pre>
+<p>I used a full join here so that I could keep all of the columns as I think they could all have interesting trends among them. Because they all have a common variable of state they fit nicely together with each column bringing data to the other set. I did not have to collapse any variables.</p>
+<p>##Wrangling</p>
+<pre class="r"><code>FullData %&gt;% filter(TrumpWin == &quot;Win&quot; &amp; Dem.Rep == min(Dem.Rep))</code></pre>
+<pre><code>## # A tibble: 1 x 10
+##   Church  Teen CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+## 1     28    56 O        WY     58840  92.3  25.7   8.6     -32 Win</code></pre>
+<pre class="r"><code>FullData %&gt;% filter(TrumpWin == &quot;Lose&quot; &amp; Dem.Rep == max(Dem.Rep))</code></pre>
+<pre><code>## # A tibble: 1 x 10
+##   Church  Teen CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+## 1     17    42 U        VT     55176  91.8    36  14.3      22 Lose</code></pre>
+<p>I wanted to filter my data to look at the extremes first so I looked at the state with Trump Winning and minimum Dem.Rep lean. The rate of teen pregnancy is 56 per 1000 teenage girls in this state, Wyoming. On the otherhand, the state with the highest Dem.Rep lean that did not vote for Trump was Vermont with a 42 per 1000 teenage girls teen pregnancy rate.</p>
+<pre class="r"><code>FullData %&gt;% arrange(desc(Teen))</code></pre>
+<pre><code>## # A tibble: 50 x 10
+##    Church  Teen CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##     &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+##  1     36    80 O        NM     44963  84.2  26.3  11.5      12 Lose    
+##  2     47    76 C        MS     39665  82.3  20.7   7.7      -5 Win     
+##  3     45    73 C        AR     41371  84.8  21.1   7.5      -7 Win     
+##  4     39    73 C        TX     53207  81.9  27.6   9.4      -6 Win     
+##  5     46    69 C        LA     45047  83.4  22.5   7.7      -2 Win     
+##  6     39    69 B        OK     46879  86.9  24.1   8       -13 Win     
+##  7     27    68 O        NV     51847  85.1  23     7.9      -4 Lose    
+##  8     35    67 U        DE     60509  88.4  30    12.2       6 Lose    
+##  9     25    65 O        HI     69515  91    30.8  10.5      21 Lose    
+## 10     42    65 C        SC     45483  85.6  25.8   9.3     -13 Win     
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>FullData %&gt;% arrange(Church)</code></pre>
+<pre><code>## # A tibble: 50 x 10
+##    Church  Teen CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##     &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+##  1     17    42 U        VT     55176  91.8  36    14.3      22 Lose    
+##  2     20    37 U        ME     49331  91.6  29    10.3      -4 Lose    
+##  3     20    28 U        NH     66779  92.3  34.9  13        -9 Lose    
+##  4     22    37 U        MA     68563  89.8  40.5  17.7      19 Lose    
+##  5     24    47 U        OR     51243  89.8  30.8  11.5       6 Lose    
+##  6     24    49 O        WA     61062  90.4  32.9  12         9 Lose    
+##  7     25    50 O        CO     60629  90.7  38.1  14        -1 Lose    
+##  8     25    44 U        CT     70331  89.9  37.6  16.6      11 Lose    
+##  9     25    65 O        HI     69515  91    30.8  10.5      21 Lose    
+## 10     26    64 O        AK     72515  92.1  28    10.1     -17 Win     
+## # … with 40 more rows</code></pre>
+<p>For arranging my data, I first looked at the rates of Teen pregnancy by state from highest to lowest to see if I could see any general trends in whether or not Trump Won that state. For the most part, it seems random. Interestingly though, when arranging by the rate at which people attend church, the likelikhood of Trump winning increases with increasing churchgoers.</p>
+<pre class="r"><code>FullData %&gt;% select(State, CivilWar, TrumpWin)</code></pre>
+<pre><code>## # A tibble: 50 x 3
+##    State CivilWar TrumpWin
+##    &lt;fct&gt; &lt;chr&gt;    &lt;chr&gt;   
+##  1 AK    O        Win     
+##  2 AL    C        Win     
+##  3 AR    C        Win     
+##  4 AZ    O        Win     
+##  5 CA    U        Lose    
+##  6 CO    O        Lose    
+##  7 CT    U        Lose    
+##  8 DE    U        Lose    
+##  9 FL    C        Win     
+## 10 GA    C        Win     
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>FullData &lt;- FullData %&gt;% rename(TeenPreg = Teen)
+FullData %&gt;% select(State, TeenPreg, TrumpWin) %&gt;% arrange(TeenPreg)</code></pre>
+<pre><code>## # A tibble: 50 x 3
+##    State TeenPreg TrumpWin
+##    &lt;fct&gt;    &lt;int&gt; &lt;chr&gt;   
+##  1 NH          28 Lose    
+##  2 MN          36 Lose    
+##  3 MA          37 Lose    
+##  4 ME          37 Lose    
+##  5 UT          38 Win     
+##  6 WI          39 Win     
+##  7 ND          42 Win     
+##  8 VT          42 Lose    
+##  9 NE          43 Win     
+## 10 CT          44 Lose    
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>Teen_vec &lt;- FullData %&gt;% pull(TeenPreg)
+mean(Teen_vec)</code></pre>
+<pre><code>## [1] 54.7</code></pre>
+<p>I selected for CivilWar status, TrumpWin, and state to get a more clear idea if the opinions held in the state have been relatively stable other past century and a half. Some line up while others don’t. I renamed Teen to TeenPreg to make it a more clear variable. I also compared my two main variables by increasing teen pregnancy rate to see a more clear picture of the data. I pulled Teen Pregnancy as a vector to get the mean.</p>
+<pre class="r"><code>FullData &lt;- FullData %&gt;% mutate(TeenPer = (TeenPreg/1000) * 100)
+FullData &lt;- FullData %&gt;% mutate(income_pctile = ntile(Income, 
+    100))
+FullData %&gt;% arrange(desc(income_pctile))</code></pre>
+<pre><code>## # A tibble: 50 x 12
+##    Church TeenPreg CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##     &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+##  1     31       57 U        MD     74551  89.4  37.9  17.3      15 Lose    
+##  2     26       64 O        AK     72515  92.1  28    10.1     -17 Win     
+##  3     30       51 U        NJ     72093  88.6  36.8  14        10 Lose    
+##  4     25       44 U        CT     70331  89.9  37.6  16.6      11 Lose    
+##  5     25       65 O        HI     69515  91    30.8  10.5      21 Lose    
+##  6     22       37 U        MA     68563  89.8  40.5  17.7      19 Lose    
+##  7     20       28 U        NH     66779  92.3  34.9  13        -9 Lose    
+##  8     35       48 C        VA     65015  88.3  36.3  15.4      -2 Lose    
+##  9     28       59 U        CA     61818  81.8  31.4  11.6      16 Lose    
+## 10     31       36 U        MN     61492  92.4  33.7  11.2       1 Lose    
+## # … with 40 more rows, and 2 more variables: TeenPer &lt;dbl&gt;, income_pctile &lt;int&gt;</code></pre>
+<pre class="r"><code>FullData &lt;- FullData %&gt;% mutate(CivilWar = recode_factor(CivilWar, 
+    U = &quot;Union&quot;, O = &quot;Other&quot;, C = &quot;Confederate&quot;, B = &quot;Border&quot;))</code></pre>
+<p>I mutated the Teen Pregnancy rate from a number per 1000 teenage girls to a percent. I also made a new column for the percentile each state is in for income. I recoded the initials for Civil War status to the proper name to make it easier to read for someone not familiar with the dataset.</p>
+<pre class="r"><code>FullData %&gt;% summarize(mean(TeenPreg, na.rm = T), n(), n_Church = n_distinct(Church))</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   `mean(TeenPreg, na.rm = T)` `n()` n_Church
+##                         &lt;dbl&gt; &lt;int&gt;    &lt;int&gt;
+## 1                        54.7    50       24</code></pre>
+<p>I looked at the summarize function with mean of Teen Pregnancy as well as verified total number of observation numbers and number of distinct options for Church.</p>
+<pre class="r"><code>FullData %&gt;% group_by(CivilWar) %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 50
+## Variables: 12
+## Groups: CivilWar [4]
+## $ Church        &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32,…
+## $ TeenPreg      &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57,…
+## $ CivilWar      &lt;fct&gt; Other, Confederate, Confederate, Other, Union, Other, U…
+## $ State         &lt;fct&gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA, HI, IA, ID, IL,…
+## $ Income        &lt;int&gt; 72515, 43623, 41371, 50255, 61818, 60629, 70331, 60509,…
+## $ HS            &lt;dbl&gt; 92.1, 84.3, 84.8, 86.0, 81.8, 90.7, 89.9, 88.4, 86.9, 8…
+## $ BA            &lt;dbl&gt; 28.0, 23.5, 21.1, 27.5, 31.4, 38.1, 37.6, 30.0, 27.3, 2…
+## $ Adv           &lt;dbl&gt; 10.1, 8.7, 7.5, 10.2, 11.6, 14.0, 16.6, 12.2, 9.8, 10.7…
+## $ Dem.Rep       &lt;int&gt; -17, -17, -7, -1, 16, -1, 11, 6, 1, -4, 21, -3, -30, 11…
+## $ TrumpWin      &lt;chr&gt; &quot;Win&quot;, &quot;Win&quot;, &quot;Win&quot;, &quot;Win&quot;, &quot;Lose&quot;, &quot;Lose&quot;, &quot;Lose&quot;, &quot;Lo…
+## $ TeenPer       &lt;dbl&gt; 6.4, 6.2, 7.3, 6.0, 5.9, 5.0, 4.4, 6.7, 6.0, 6.4, 6.5, …
+## $ income_pctile &lt;int&gt; 97, 7, 3, 41, 83, 75, 93, 73, 25, 39, 91, 53, 27, 67, 3…</code></pre>
+<p>I grouped by CivilWar status to look at the differences between each group.</p>
+<pre class="r"><code>FullData %&gt;% group_by(CivilWar) %&gt;% summarize(mean_teenper = mean(TeenPer, 
+    na.rm = T), sd_teenper = sd(TeenPer, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   CivilWar    mean_teenper sd_teenper
+##   &lt;fct&gt;              &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Union               4.82      0.983
+## 2 Other               5.51      1.16 
+## 3 Confederate         6.46      0.795
+## 4 Border              6.17      0.751</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin) %&gt;% summarize(mean_teen = mean(TeenPreg, 
+    na.rm = T), sd_teen = sd(TeenPreg, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   TrumpWin mean_teen sd_teen
+##   &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Lose          51.4    13.0
+## 2 Win           56.9    10.3</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin) %&gt;% summarize(mean_hs = mean(HS, 
+    na.rm = T), sd_hs = sd(HS, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   TrumpWin mean_hs sd_hs
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lose        88.8  2.89
+## 2 Win         87.9  3.21</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin) %&gt;% summarize(mean_ba = mean(BA, 
+    na.rm = T), sd_ba = sd(BA, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   TrumpWin mean_ba sd_ba
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;
+## 1 Lose        33.2  4.29
+## 2 Win         26.2  2.95</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin) %&gt;% summarize(mean_church = mean(Church, 
+    na.rm = T), sd_church = sd(Church, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   TrumpWin mean_church sd_church
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;
+## 1 Lose            27.1      5.28
+## 2 Win             36.3      6.45</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin) %&gt;% summarize(max(Income), min(Income))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   TrumpWin `max(Income)` `min(Income)`
+##   &lt;chr&gt;            &lt;int&gt;         &lt;int&gt;
+## 1 Lose             74551         44963
+## 2 Win              72515         39665</code></pre>
+<pre class="r"><code>FullData %&gt;% summarize(max(Dem.Rep), min(Dem.Rep))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   `max(Dem.Rep)` `min(Dem.Rep)`
+##            &lt;int&gt;          &lt;int&gt;
+## 1             22            -32</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(TrumpWin, CivilWar) %&gt;% summarise(mean_teen = mean(TeenPreg, 
+    na.rm = T), sd_teen = sd(TeenPreg, na.rm = T))</code></pre>
+<pre><code>## # A tibble: 7 x 4
+## # Groups:   TrumpWin [2]
+##   TrumpWin CivilWar    mean_teen sd_teen
+##   &lt;chr&gt;    &lt;fct&gt;           &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Lose     Union            47.8   11.5 
+## 2 Lose     Other            62.4   13.0 
+## 3 Lose     Confederate      48     NA   
+## 4 Win      Union            49.1    5.64
+## 5 Win      Other            51.4    9.38
+## 6 Win      Confederate      66.3    6.04
+## 7 Win      Border           61.7    7.51</code></pre>
+<pre class="r"><code>FullData %&gt;% group_by(CivilWar) %&gt;% summarize(max(Adv), min(Adv))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   CivilWar    `max(Adv)` `min(Adv)`
+##   &lt;fct&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Union             17.7        8.5
+## 2 Other             14          7.4
+## 3 Confederate       15.4        7.5
+## 4 Border            10.2        8</code></pre>
+<p>I used group_by and summarize to look at my numeric variables under different comparisons.</p>
+<pre class="r"><code>FullData %&gt;% select_if(is.numeric) %&gt;% na.omit %&gt;% cor</code></pre>
+<pre><code>##                   Church   TeenPreg     Income         HS         BA        Adv
+## Church         1.0000000  0.5091749 -0.5412814 -0.5717123 -0.5886914 -0.4993538
+## TeenPreg       0.5091749  1.0000000 -0.4109275 -0.7409783 -0.5551606 -0.3509623
+## Income        -0.5412814 -0.4109275  1.0000000  0.4818492  0.8086222  0.7247731
+## HS            -0.5717123 -0.7409783  0.4818492  1.0000000  0.4621324  0.2296884
+## BA            -0.5886914 -0.5551606  0.8086222  0.4621324  1.0000000  0.9149126
+## Adv           -0.4993538 -0.3509623  0.7247731  0.2296884  0.9149126  1.0000000
+## Dem.Rep       -0.4350789  0.0218046  0.3454984 -0.1545228  0.4989263  0.6430568
+## TeenPer        0.5091749  1.0000000 -0.4109275 -0.7409783 -0.5551606 -0.3509623
+## income_pctile -0.5762135 -0.4805942  0.9733965  0.5129903  0.8157548  0.6931759
+##                  Dem.Rep    TeenPer income_pctile
+## Church        -0.4350789  0.5091749    -0.5762135
+## TeenPreg       0.0218046  1.0000000    -0.4805942
+## Income         0.3454984 -0.4109275     0.9733965
+## HS            -0.1545228 -0.7409783     0.5129903
+## BA             0.4989263 -0.5551606     0.8157548
+## Adv            0.6430568 -0.3509623     0.6931759
+## Dem.Rep        1.0000000  0.0218046     0.3360267
+## TeenPer        0.0218046  1.0000000    -0.4805942
+## income_pctile  0.3360267 -0.4805942     1.0000000</code></pre>
+<p>I used the correlation matrix to look at the relationships between all numeric variables.</p>
+<p>###Results
+I used the grouping by and summarize function together to explore the means of specific variables. I grouped by CivilWar to look at mean percent of teenage pregnancy and found that there is about a two percent increase from union to confederate states. When grouped by TrumpWin, there is an increase of 5 pregnant teens on average from “Lose” to “Win” with a decreasing standard deviation, respectively. The difference between mean/standard deviation of high school graduates from Trump Win states and Trump Lose states is minimal. On the otherhand, there is a 7% increase from Trump Win states to Trump lose states for the mean of bachelors degrees in the state with a 2% difference in standard deviation. Between churchgoers, 9% more attended in Trump Win states, with the standard deviations being close. The maximum income for states is similar for Trump Lose and Win states but the minimum is slightly higher in Trump Lose states. The high Dem.Rep lean was 22 while the low was -32. When grouped by TrumpWin and CivilWar, the mean of teenage pregnancy increases from Lose to Win and from Union to Confederate within each. Lastly, the percent receiving advanced degrees has a higher max in union than border states with the minimums of each CivilWar group being around the same value.</p>
+<p>I created a correlation matrix of my numeric variables. The strongest correlation was between percentage with a bacherlors degree and percent with an advanced degree. The most negative correlation was between high school graduates and teen pregnancy.</p>
+<p>##Visualizing</p>
+<pre class="r"><code>library(ggplot2)
+ggplot(FullData, aes(x = CivilWar, y = TeenPer, fill = TrumpWin)) + 
+    geom_bar(stat = &quot;summary&quot;, fun.y = &quot;mean&quot;, position = &quot;dodge&quot;) + 
+    geom_errorbar(stat = &quot;summary&quot;, position = &quot;dodge&quot;) + scale_fill_manual(&quot;Trump Status&quot;, 
+    values = c(Lose = &quot;blue&quot;, Win = &quot;red&quot;)) + ggtitle(&quot;Teen Pregnancy by Trump Hold&quot;) + 
+    ylab(&quot;Percent of Teenage Pregnancy&quot;) + xlab(&quot;Civil War Status&quot;) + 
+    theme_light() + scale_y_continuous(breaks = seq(0, 7, 0.5))</code></pre>
+<pre><code>## No summary function supplied, defaulting to `mean_se()</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_errorbar).</code></pre>
+<p><img src="/Projects/Exploratory-Data-Analysis_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>FullData %&gt;% filter(TrumpWin == &quot;Lose&quot; &amp; CivilWar == &quot;Confederate&quot;)</code></pre>
+<pre><code>## # A tibble: 1 x 12
+##   Church TeenPreg CivilWar State Income    HS    BA   Adv Dem.Rep TrumpWin
+##    &lt;int&gt;    &lt;int&gt; &lt;fct&gt;    &lt;fct&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt; &lt;chr&gt;   
+## 1     35       48 Confede… VA     65015  88.3  36.3  15.4      -2 Lose    
+## # … with 2 more variables: TeenPer &lt;dbl&gt;, income_pctile &lt;int&gt;</code></pre>
+<p>Before develing into the results, there are two noticable aspects of this graph. One is that there are no border states that lost Trump’s vote, which is why there is one less blue bar. Second, there is only one confederate state that lost Trump’s vote, so there is no error bar on that bar. As far as the results, it is notable that the union states, overall, have a lower teenage pregnancy rate despite if they won or lost Trump’s vote. The highest rate of teenage pregnancy falls under the confederate states that voted for Trump. The rate of other states that lost Trump’s vote and border state’s that voted for Trump are not far behind indicating there is not a clear trend as far as whether or not voting for Trump correlates to higher rates of teenage pregnancy.</p>
+<pre class="r"><code>ggplot(FullData, aes(HS, TeenPer)) + geom_point(size = 5, aes(color = Income)) + 
+    scale_color_gradient(low = &quot;white&quot;, high = &quot;green&quot;) + theme_dark() + 
+    ggtitle(&quot;Teen Pregnancy by High School Graduates&quot;) + ylab(&quot;Percent of Teenage Pregnancy&quot;) + 
+    xlab(&quot;Percent of High Scool Graduates&quot;) + scale_y_continuous(breaks = seq(3, 
+    8, 0.5))</code></pre>
+<p><img src="/Projects/Exploratory-Data-Analysis_files/figure-html/unnamed-chunk-15-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>This graph has more notable trends than the previous. It is apparent that states with higher percentages of high school graduates have lower rates of teenage pregnancy. In addition, the color gradient shows that states with higher income have higher percent of high school graduates which makes sense. Lastly, it appears that states with higher incomes have decreasing percents of teenage pregnancy.</p>
+<p>##Dimensionality Reduction</p>
+<pre class="r"><code>FullData_nums &lt;- FullData %&gt;% select_if(is.numeric) %&gt;% scale
+rownames(FullData_nums) &lt;- FullData$State
+FullData_pca &lt;- princomp(FullData_nums)
+names(FullData_pca)</code></pre>
+<pre><code>## [1] &quot;sdev&quot;     &quot;loadings&quot; &quot;center&quot;   &quot;scale&quot;    &quot;n.obs&quot;    &quot;scores&quot;   &quot;call&quot;</code></pre>
+<pre class="r"><code>summary(FullData_pca, loadings = T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2     Comp.3     Comp.4     Comp.5
+## Standard deviation     2.2753765 1.3762596 0.85793901 0.74313438 0.48176654
+## Proportion of Variance 0.5869998 0.2147495 0.08345344 0.06261323 0.02631508
+## Cumulative Proportion  0.5869998 0.8017493 0.88520272 0.94781595 0.97413103
+##                           Comp.6      Comp.7      Comp.8       Comp.9
+## Standard deviation     0.4050943 0.217778518 0.128978452 9.497664e-09
+## Proportion of Variance 0.0186056 0.005377266 0.001886104 1.022739e-17
+## Cumulative Proportion  0.9927366 0.998113896 1.000000000 1.000000e+00
+## 
+## Loadings:
+##               Comp.1 Comp.2 Comp.3 Comp.4 Comp.5 Comp.6 Comp.7 Comp.8 Comp.9
+## Church         0.328         0.402  0.687         0.507                     
+## TeenPreg       0.324 -0.416  0.233 -0.310 -0.254                      -0.707
+## Income        -0.372 -0.167  0.489 -0.122  0.250        -0.321 -0.642       
+## HS            -0.299  0.419        -0.343 -0.480  0.611                     
+## BA            -0.399 -0.177         0.266 -0.353 -0.127  0.731 -0.250       
+## Adv           -0.344 -0.347         0.342 -0.474 -0.175 -0.559  0.274       
+## Dem.Rep       -0.177 -0.532 -0.536         0.278  0.564                     
+## TeenPer        0.324 -0.416  0.233 -0.310 -0.254                       0.707
+## income_pctile -0.383 -0.122  0.438 -0.122  0.389         0.196  0.665</code></pre>
+<pre class="r"><code>eigval &lt;- FullData_pca$sdev^2
+varprop = round(eigval/sum(eigval), 2)</code></pre>
+<p>I scaled and selected numeric variables in order to use with princomp and ran the summary to look at the standard deviation, proportion of variance, and cumulative proportion of each principle component. The Eigen value is the standard deviations squared.</p>
+<pre class="r"><code>ggplot() + geom_bar(aes(y = varprop, x = 1:9), stat = &quot;identity&quot;) + 
+    xlab(&quot;&quot;) + geom_path(aes(y = varprop, x = 1:9)) + geom_text(aes(x = 1:9, 
+    y = varprop, label = round(varprop, 2)), vjust = 1, col = &quot;white&quot;, 
+    size = 5) + scale_y_continuous(breaks = seq(0, 0.6, 0.2), 
+    labels = scales::percent) + scale_x_continuous(breaks = 1:10)</code></pre>
+<p><img src="/Projects/Exploratory-Data-Analysis_files/figure-html/unnamed-chunk-17-1.png" width="768" style="display: block; margin: auto;" />
+When plotted in a scree plot, the first two principal components account for 0.8 of the total variance proportion, so I chose to use only those first two.</p>
+<pre class="r"><code>library(ggrepel)
+FullData_df &lt;- FullData %&gt;% mutate(PC1 = FullData_pca$scores[, 
+    1], PC2 = FullData_pca$scores[, 2])
+ggplot(FullData_df, aes(PC1, PC2, color = TrumpWin)) + geom_point() + 
+    geom_text_repel(aes(label = State), color = &quot;Black&quot;)</code></pre>
+<p><img src="/Projects/Exploratory-Data-Analysis_files/figure-html/unnamed-chunk-18-1.png" width="768" style="display: block; margin: auto;" />
+PC1 appears to separate the dataset based on whether Trump won or lost with lost being on the higher side of PC1. Among those states are the wealthy, more educated, northeastern states that tend to vote Democratic. They are also lower on teen pregnancy rates. On the low end of PC1 are the states that voted for Trump that tend to be Republican. This side is higher on teen pregnancy rates. This coincides with my predictions that states that voted for Trump would have higher teen pregnancy rates.</p>
+<p>Higher on PC2 states are ones more likely to graduate high school, while low PC2 states have higher teen pregnancy rates. Lower PC2 states also have a higher Dem.Rep lean so they are more likely Democratic. While looking at the states, low on PC2 are California and New York, which would make sense with these parameters. Interestingly though, states such as Wyoming and Montana with low populations and vast area, are high on PC2. This would coincide for the Dem.Rep lean, but it is interesting that they would have notable lower teen pregnancy rates.</p>
+<pre class="r"><code>FullData_pca$loadings[1:9, 1:2] %&gt;% as.data.frame %&gt;% rownames_to_column %&gt;% 
+    ggplot() + geom_hline(aes(yintercept = 0), lty = 2) + geom_vline(aes(xintercept = 0), 
+    lty = 2) + ylab(&quot;PC2&quot;) + xlab(&quot;PC1&quot;) + geom_segment(aes(x = 0, 
+    y = 0, xend = Comp.1, yend = Comp.2), arrow = arrow(), col = &quot;red&quot;) + 
+    geom_label(aes(x = Comp.1 * 1.1, y = Comp.2 * 1.1, label = rowname))</code></pre>
+<p><img src="/Projects/Exploratory-Data-Analysis_files/figure-html/unnamed-chunk-19-1.png" width="768" style="display: block; margin: auto;" /></p>

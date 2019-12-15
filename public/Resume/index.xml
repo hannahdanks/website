@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Resumes on Hannah Danks</title>
+    <link>/resume/</link>
+    <description>Recent content in Resumes on Hannah Danks</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    
+	<atom:link href="/resume/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About Me</title>
+      <link>/resume/about-me/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/about-me/</guid>
+      <description>About Me Canadian born, I was raise North of Dallas in Frisco, Texas. Having found a passion for taking care of animals early on, I have been driven throughout my education by the motivation to attend veterinary school and become a wildlife rescue veterinarian.
+Interests In my free time, I enjoying all things nature. From hiking and biking, I love being outside. In addition, I run enjoy running half marathons and triathlons.</description>
+    </item>
+    
+    <item>
+      <title>Accomplishments</title>
+      <link>/resume/accomplishments/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/accomplishments/</guid>
+      <description> Accomplishments  </description>
+    </item>
+    
+    <item>
+      <title>Education</title>
+      <link>/resume/education/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/education/</guid>
+      <description> Education I have attended the University of Texas at Austin, where I will obtain a Bachelors in Science and Art in the Fall of 2019. My degree was focused in Biology with a study equivalent to a minor in Psychology. I have also received a Pre-Health Professions Certificate during this time.
+Skills I have a base level knowledge of R Studio and Python.
+  </description>
+    </item>
+    
+    <item>
+      <title>Work Experience</title>
+      <link>/resume/work-experiences/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/work-experiences/</guid>
+      <description> Work Experience I have worked as a kennel technician for over 350 hours at the Legacy Veterinary Hospital in Frisco, Texas, practicing skills such as medicating, expressing anal glands, and nail trims. I have worked as a technicians’ assistant since April of 2019 for Crestview Veterinary Clinic in Austin, Texas.
+ </description>
+    </item>
+    
+  </channel>
+</rss>
