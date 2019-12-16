@@ -13,10 +13,10 @@
     
     <item>
       <title>Modeling, Testing, and Predicting</title>
-      <link>/projects/modeling-testing-and-predicintg/</link>
+      <link>/projects/modeling-testing-and-predicting/</link>
       <pubDate>Mon, 11 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>/projects/modeling-testing-and-predicintg/</guid>
+      <guid>/projects/modeling-testing-and-predicting/</guid>
       <description>Calling Dataset and Tidying Before Using library(dplyr);library(tidyverse) TeenPregnancy&amp;lt;-read.csv( &amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&amp;quot;) Election16&amp;lt;-read.csv( &amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&amp;quot;) TeenPregnancy&amp;lt;-dplyr::select(TeenPregnancy, -c(X)) %&amp;gt;%glimpse() ## Observations: 50 ## Variables: 4 ## $ State &amp;lt;fct&amp;gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA, HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, … ## $ CivilWar &amp;lt;fct&amp;gt; O, C, C, O, U, O, U, U, C, C, O, U, O, U, U, U, B, C, U, U, U, U, U, B, C, O, C,… ## $ Church &amp;lt;int&amp;gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32, 35, 33, 41, 46, 22, 31, … ## $ Teen &amp;lt;int&amp;gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57, 53, 53, 62, 69, 37, 57, … Election16&amp;lt;-dplyr::select(Election16, -c(X, State)) colnames(Election16)[colnames(Election16)==&amp;quot;Abr&amp;quot;]&amp;lt;-&amp;quot;State&amp;quot; glimpse(Election16) ## Observations: 50 ## Variables: 7 ## $ State &amp;lt;fct&amp;gt; AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, … ## $ Income &amp;lt;int&amp;gt; 43623, 72515, 50255, 41371, 61818, 60629, 70331, 60509, 47507, 49620, 69515, 475… ## $ HS &amp;lt;dbl&amp;gt; 84.</description>
     </item>
     

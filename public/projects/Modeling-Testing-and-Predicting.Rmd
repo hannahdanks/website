@@ -1,10 +1,16 @@
 ---
-title: "Modeling, Testing, and Predicting"
-author: "HD"
-date: 2019-11-11
-output: html_document
+title: 'Modeling, Testing, and Predicting'
+author: "Hannah Danks"
+date: "2019-11-11"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
 ---
-
 
 ```{r setup, include=FALSE}
 library(knitr)

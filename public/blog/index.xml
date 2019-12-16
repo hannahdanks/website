@@ -6,7 +6,7 @@
     <description>Recent content in Blogs on Hannah Danks</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate>
+    <lastBuildDate>Sat, 14 Dec 2019 21:13:14 -0500</lastBuildDate>
     
 	<atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,12 +14,12 @@
     <item>
       <title>What We&#39;re Learning</title>
       <link>/blog/what-were-learning/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      <pubDate>Sat, 14 Dec 2019 21:13:14 -0500</pubDate>
       
       <guid>/blog/what-were-learning/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+      <description>Regular Expressions In class, we’ve been working on regular expressions that make it easier to find specific strings within chunks. There are a multitude of ways to find each expression that is being sought after. Below is a picture of the general symbols that are used in these equations.
+Regex Symbols
+ We can use these expressiongs to run DNA sequences to look for restriction enzymes and predict where sequences will be cut and what fragments will make up the string.</description>
     </item>
     
   </channel>

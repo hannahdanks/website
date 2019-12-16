@@ -6,10 +6,21 @@
     <description>Recent content on Hannah Danks</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Thu, 12 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 14 Dec 2019 21:13:14 -0500</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>What We&#39;re Learning</title>
+      <link>/blog/what-were-learning/</link>
+      <pubDate>Sat, 14 Dec 2019 21:13:14 -0500</pubDate>
+      
+      <guid>/blog/what-were-learning/</guid>
+      <description>Regular Expressions In class, we’ve been working on regular expressions that make it easier to find specific strings within chunks. There are a multitude of ways to find each expression that is being sought after. Below is a picture of the general symbols that are used in these equations.
+Regex Symbols
+ We can use these expressiongs to run DNA sequences to look for restriction enzymes and predict where sequences will be cut and what fragments will make up the string.</description>
+    </item>
     
     <item>
       <title>About Me</title>
@@ -52,10 +63,10 @@
     
     <item>
       <title>Modeling, Testing, and Predicting</title>
-      <link>/projects/modeling-testing-and-predicintg/</link>
+      <link>/projects/modeling-testing-and-predicting/</link>
       <pubDate>Mon, 11 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>/projects/modeling-testing-and-predicintg/</guid>
+      <guid>/projects/modeling-testing-and-predicting/</guid>
       <description>Calling Dataset and Tidying Before Using library(dplyr);library(tidyverse) TeenPregnancy&amp;lt;-read.csv( &amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&amp;quot;) Election16&amp;lt;-read.csv( &amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&amp;quot;) TeenPregnancy&amp;lt;-dplyr::select(TeenPregnancy, -c(X)) %&amp;gt;%glimpse() ## Observations: 50 ## Variables: 4 ## $ State &amp;lt;fct&amp;gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA, HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, … ## $ CivilWar &amp;lt;fct&amp;gt; O, C, C, O, U, O, U, U, C, C, O, U, O, U, U, U, B, C, U, U, U, U, U, B, C, O, C,… ## $ Church &amp;lt;int&amp;gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39, 25, 32, 34, 32, 35, 33, 41, 46, 22, 31, … ## $ Teen &amp;lt;int&amp;gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65, 44, 47, 57, 53, 53, 62, 69, 37, 57, … Election16&amp;lt;-dplyr::select(Election16, -c(X, State)) colnames(Election16)[colnames(Election16)==&amp;quot;Abr&amp;quot;]&amp;lt;-&amp;quot;State&amp;quot; glimpse(Election16) ## Observations: 50 ## Variables: 7 ## $ State &amp;lt;fct&amp;gt; AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, … ## $ Income &amp;lt;int&amp;gt; 43623, 72515, 50255, 41371, 61818, 60629, 70331, 60509, 47507, 49620, 69515, 475… ## $ HS &amp;lt;dbl&amp;gt; 84.</description>
     </item>
     
@@ -76,17 +87,6 @@
       
       <guid>/projects/</guid>
       <description></description>
-    </item>
-    
-    <item>
-      <title>What We&#39;re Learning</title>
-      <link>/blog/what-were-learning/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/blog/what-were-learning/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
     </item>
     
   </channel>

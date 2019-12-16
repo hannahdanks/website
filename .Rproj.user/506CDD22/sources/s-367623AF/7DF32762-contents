@@ -1,0 +1,314 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Hannah Danks"
+date: 2019-11-11
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+# Calling Dataset and Tidying Before Using
+
+```{R}
+library(dplyr);library(tidyverse)
+TeenPregnancy<-read.csv(
+  "https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv")
+Election16<-read.csv(
+  "https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv")
+TeenPregnancy<-dplyr::select(TeenPregnancy, -c(X)) %>%glimpse()
+Election16<-dplyr::select(Election16, -c(X, State))
+colnames(Election16)[colnames(Election16)=="Abr"]<-"State"
+glimpse(Election16)
+FullData<-full_join(TeenPregnancy, Election16, by=c("State"))
+FullData <-FullData %>% 
+  mutate(CivilWar=recode_factor(CivilWar,"U"="Union","O"="Other","C"="Confederate","B"="Border"))
+glimpse(FullData)
+```
+
+# Introduction
+
+These are previously merged datasets from Project 1. The first dataset was rates of teenage girls pregnant per 1000 teenage girls in each state, with other variables such as Civil War status and percentage of church goers. The other dataset was states that voted for Trump in the 2016 election, with variables such as income per capita, percent high school graduates, percent college graduates, percent with advanced degrees, and Democratic-Republican lean. 
+
+# Manova
+
+##Manova Test
+```{R}
+manovatest<-manova(cbind(Church,Income,Teen,Dem.Rep,HS,BA,Adv)~CivilWar, data=FullData)
+summary(manovatest)
+```
+Using a MANOVA, the effect of Civil War status on the Church goers, income, teenage pregnancy rates, Democractic Republican lean, high school graduates, people with Bachelors degrees, and people with advanced degrees was determined. The MANOVA test was significant meaning for at least one response variable, at least one group mean differs on the basis of Civil War status.
+
+##Anova Test
+```{R}
+summary.aov(manovatest)
+
+FullData%>%group_by(CivilWar)%>%
+  summarize(mean(Church),mean(Income),mean(Teen),mean(Dem.Rep),mean(HS),mean(BA),mean(Adv))
+```
+Using the ANOVA, all of them are significant without the corrected Bonferroni. When using the corrected p-value, Dem.Rep, Income, Bachelors degrees, and Advanced degrees do not show significant differences between different levels of the categorical variables.
+
+##T-Tests
+```{R}
+pairwise.t.test(FullData$Church,FullData$CivilWar, p.adj="none")
+pairwise.t.test(FullData$Income,FullData$CivilWar,p.adj="none")
+pairwise.t.test(FullData$Teen,FullData$CivilWar,p.adj="none")
+pairwise.t.test(FullData$Dem.Rep,FullData$CivilWar,p.adj="none")
+pairwise.t.test(FullData$HS,FullData$CivilWar,p.adj="none")
+pairwise.t.test(FullData$BA,FullData$CivilWar,p.adj="none")
+pairwise.t.test(FullData$Adv,FullData$CivilWar,p.adj="none")
+```
+Pairwise t-tests were used for post hoc analysis to find significant differences in groups using corrected p-value. For churchgoers and high school graduates, Conferate and Union and Confederate and Other differed significantly. For Income, Bachelors degrees, and Teen pregnancy, Confederate and Union differed significantly. For Democratic Republican lean, only Union and Other differed significantly. For Advanced degress, no Civil War groups differed significantly.
+
+##Bonferroni Correction
+```{R}
+1+7+(7*6) #Number of Tests
+1-0.95^50 #Probability of at least one type I error
+0.05/50 #Bonferroni correction
+```
+With the Bonferroni correction, there is a 0.923055 chance of at least one type I error and the new corrected p-value will be 0.001 based on the 50 tests from 7 dependent variables and 6 unique pairs. The assumptions for MANOVA are random samples, multivariate normality of dependent variables, homogenity of within-group covariance matrices, linear relationships among dependent variables, no extreme outliers, and no mulitcollinearity. The assumptions that would probably not be met are extreme outliers and no multicollinearity because some states are on the extreme end and have values that coincide and a lot of the dependent variables are correlated with each other and show certain trends that follow each other. 
+
+# Randomization Test
+
+##Creating Vectors for Randomization Test
+```{R}
+Trump<-FullData%>%dplyr::select(TrumpWin,Teen)
+TrumpWon<-Trump%>%filter(TrumpWin=="1")
+TrumpLost<-Trump%>%filter(TrumpWin=="0")
+TrumpWon<-as.vector(TrumpWon%>%dplyr::select(-TrumpWin))
+TrumpLost<-as.vector(TrumpLost%>%dplyr::select(-TrumpWin))
+TrumpWon<- as.numeric(TrumpWon$Teen)
+TrumpLost<-as.numeric(TrumpLost$Teen)
+```
+
+##Randomization Test
+```{R}
+RandomTest<-data.frame(condition=c(rep("TrumpWon",30),rep("TrumpLost",20)),
+                       teen=c(TrumpWon,TrumpLost))
+
+head(RandomTest)
+
+ggplot(RandomTest,aes(teen,fill=condition))+
+  geom_histogram(bins=6.5)+facet_wrap(~condition,ncol=2)+theme(legend.position="none")
+
+RandomTest%>%group_by(condition)%>%
+  summarize(means=mean(teen))%>%summarize(`mean_diff:`=diff(means))
+
+rand_dist<-vector()
+
+for(i in 1:5000){
+new<-data.frame(teen=sample(RandomTest$teen),condition=RandomTest$condition) 
+rand_dist[i]<-mean(new[new$condition=="TrumpWon",]$teen)-
+              mean(new[new$condition=="TrumpLost",]$teen)}
+
+{hist(rand_dist,main="",ylab=""); abline(v = 5.416667,col="red")}
+
+mean(rand_dist>5.416667)*2 #P-value
+
+t.test(data=RandomTest,teen~condition)
+```
+The null hypothesis is that the mean of teen pregnancy for states that Trump Won is the same for states that Trump Lost. The alternative hypothesis is that the mean of teen pragnancy for states that Trump Won is different than that of states that Trump lost. A randomization test was conducted using repeated random sampling. The pvalue is not significant so we accept the null and say that the two means are not significantly different. 
+
+#Linear Regression Model
+```{R}
+FullData$HS_c<-FullData$HS-mean(FullData$HS)
+
+fit<-lm(Teen~TrumpWin*HS_c,data=FullData)
+summary(fit)
+
+ggplot(FullData, aes(x=HS_c, y=Teen,group=TrumpWin))+geom_point(aes(color=TrumpWin))+
+  geom_smooth(method="lm",formula=y~1,se=F,fullrange=T,aes(color=TrumpWin))+
+theme(legend.position=c(.9,.19))+xlab("")
+```
+Controlling for Trump Win, on average, every one unit increase in high school graduates, there is a 3.0215 decrease in teenage pregnancy. Controlling for high school graduates, 2.8775 is the difference in Teenage pregnancy rates for Trump Win and Trump Lose states. The intercept means that if all else equals zero, teenage pregnancy rate will be 53.0695. The interaction shows the difference in slopes for Trump Win and Trump Lose when not controlling for high school graduates. The slope for Trump Lose would just be -3.015, while the slope for Trump Win is (-3.015+.448)=(-2.5735). The proportion of variation explained is the R squared value, which is 0.5678.
+
+##Assumptions
+```{R}
+library(sandwich); library(lmtest)
+resids<-fit$residuals
+
+#Homoskedasticity
+bptest(fit)
+
+#linearity
+shapiro.test(resids)
+
+#Normality
+ks.test(resids, "pnorm", mean=0,sd(resids)) 
+
+#Corrected SE
+coeftest(fit,vcov=vcovHC(fit)) 
+```
+The regression is not homoskedastic, but is linear and normal. There is no difference between before and after the robust SE for any of the coefficients, however, all of the standard errors increase slightly, meaning the t-value would go down and that, therefore, the p-value would go up.
+
+# Linear Regression Model with Bootstrapped Standard Errors
+```{R}
+samp_distn<-replicate(5000, {
+ boot_dat<-FullData[sample(nrow(FullData),replace=TRUE),]
+ fit<-lm(Teen~TrumpWin*HS_c,data=boot_dat)
+ coef(fit)
+})
+samp_distn%>%t%>%as.data.frame%>%summarize_all(sd)
+```
+These boot strapped SEs are all larger than the original SEs, but they are all smaller than the robust SEs. Because the standard errors are smaller than the robust standard errors, they have a larger t-value and thus a smaller p-value, which is better because it is harder to reject the null. This is the opposite thinking of the original SEs.
+
+# Logistic Regression
+
+##Classification Diagnostics
+```{R}
+library(MASS)
+library(lmtest)
+class_diag<-function(probs,truth){
+ tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+ acc=sum(diag(tab))/sum(tab)
+ sens=tab[2,2]/colSums(tab)[2]
+ spec=tab[1,1]/colSums(tab)[1]
+ ppv=tab[2,2]/rowSums(tab)[2]
+ if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+
+ ord<-order(probs, decreasing=TRUE)
+ probs <- probs[ord]; truth <- truth[ord]
+ TPR=cumsum(truth)/max(1,sum(truth))
+ FPR=cumsum(!truth)/max(1,sum(!truth))
+ dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+ TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+ n <- length(TPR)
+ auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+ data.frame(acc,sens,spec,ppv,auc)
+} 
+```
+
+##Logististic Regression
+```{R}
+bindat<-FullData%>%dplyr::select(TrumpWin,HS,Teen)
+fit<-glm(TrumpWin~(.),data=bindat,family="binomial")
+coeftest(fit)
+exp(coef(fit))
+prob<-predict(fit,type="response")
+class_diag(prob,bindat$TrumpWin)
+```
+Controlling for high school graduates, every 1 unit increase in teenage pregnancy, odds of Trump Win change by a factor of 1.05212=e^0.0508. Controlling for teenage pregnancy, every 1 unit increase in high school graduates, odds of Trump Win change by a factor of 1.0435=e^0.042537. The accuracy was 0.66, sensitivity was 0.867, specificity was 0.35, and ppv was 0.667.
+
+##Confusion Matrix
+```{R}
+bindat$prob<-predict(fit,type="response")
+table(predict=as.numeric(bindat$prob>.5),truth=bindat$TrumpWin)%>%addmargins
+```
+
+##Plot Density of Log-Odds (logit) By Binary Outcome Variable
+```{R}
+data<-bindat
+data$TrumpWin
+data$TrumpWin<-as.factor(data$TrumpWin)
+data$logit<-predict(fit,type="link")
+
+data%>%ggplot()+geom_density(aes(logit,color=TrumpWin,fill=TrumpWin), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("predictor (logit)")
+```
+
+##ROC Curve
+```{R}
+data$prob<-predict(fit,type = "response")
+sens<-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==1,]$prob>p)
+spec<-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==0,]$prob<p)
+sensitivity<-sapply(seq(0,1,.01),sens,data)
+specificity<-sapply(seq(0,1,.01),spec,data)
+
+ROC1<-data.frame(sensitivity,specificity,cutoff=seq(0,1,.01))
+
+ROC1$TPR<-sensitivity
+ROC1$FPR<-1-specificity
+ROC1%>%ggplot(aes(FPR,TPR))+geom_path(size=1.5)+geom_segment(aes(x=0,y=0,xend=1,yend=1),lty=2)+
+ scale_x_continuous(limits = c(0,1))
+```
+The ROC curve shows that this is not a very good predictor because the line shows that the true positive rate almost follows the false positive rate.
+ 
+##AUC
+```{R}
+widths<-diff(ROC1$FPR)
+heights<-vector()
+for(i in 1:100) heights[i]<-ROC1$TPR[i]+ROC1$TPR[i+1]
+AUC<-sum(heights*widths/2)
+AUC%>%round(3)
+```
+The AUC is 0.651 which is not a very good predictor. The AUC is the probability that a randomly selected state who voted for Trump has a higher prediction than a randomly selected state that didn't vote for Trump.
+
+##10-Fold CV
+```{R}
+set.seed(1234)
+k=5 
+data1<-bindat[sample(nrow(bindat)),]
+folds<-cut(seq(1:nrow(bindat)),breaks=k,labels=F)
+diags<-NULL
+for(i in 1:k){
+ train<-data1[folds!=i,]
+ test<-data1[folds==i,]
+ truth<-test$TrumpWin
+ fit<-glm(TrumpWin~(.),data=train,family="binomial")
+ probs<-predict(fit,newdata = test,type="response")
+ diags<-rbind(diags,class_diag(probs,truth))
+}
+apply(diags,2,mean) 
+```
+For the 10-fold, there had to be an adjustment to 5-fold. The accuracy was 0.58, sensitivity was 0.747, and the recall was 0.587.
+
+# LASSO Regression
+
+##LASSO
+```{R}
+library(glmnet)
+library(boot)
+library(foreach)
+fit<-glm(TrumpWin~(.),data=FullData)
+x<-model.matrix(fit)
+y<-as.matrix(FullData$TrumpWin)
+
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+```
+Church, BA, Adv, Income, and Dem.Rep all had values for the lasso and so they are retained.
+
+##10-Fold CV
+```{R}
+set.seed(1234)
+k=5
+data1<-FullData[sample(nrow(FullData)),] 
+folds<-cut(seq(1:nrow(FullData)),breaks=k,labels=F) 
+diags<-NULL
+for(i in 1:k){
+ train<-data1[folds!=i,]
+ test<-data1[folds==i,]
+ truth<-test$TrumpWin
+ fit<-glm(TrumpWin~Church+BA+Adv+Dem.Rep,data=train,family="binomial")
+ probs<-predict(fit,newdata=test,type="response")
+ preds<-ifelse(probs>.5,1,0)
+ 
+ diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarise_all(mean)
+```
+The accuracy was 0.58 and has now increased to 0.84, which is substantial. 

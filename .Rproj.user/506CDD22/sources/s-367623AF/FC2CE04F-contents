@@ -1,0 +1,188 @@
+---
+title: "Exploratory Data Analysis"
+author: "HD"
+date: 2019-10-15
+output: html_document
+---
+
+
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, fig.width=8,tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+```{R}
+TeenPregnancy<-read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv")
+Election16<-read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv")
+```
+
+##Intro
+
+###Teen Pregnancy
+This dataset shows rates of teenage girls pregnant per 1000 teenage girls in each state. It also has variables for Civil War role (i.e. whether that state was a border, confederate, union, or other) and for percent of people who attened church in the previous week from that state. This dataset had interesting variables that I thought would compare well to an election. I got this dataset from https://vincentarelbundock.github.io/Rdatasets/datasets.html.
+
+###2016 Election
+This dataset has variables for state name, income per capita, percent high school graduates, percent college graduates, and percent with advanced degrees. They have a Democratic lean-Republican lean variable and lastly a variable for whether Trump won the state or not. I am interested to see the demographics of Trump voters instead of generalizations that often come from the media. I got this dataset from https://vincentarelbundock.github.io/Rdatasets/datasets.html as well. 
+
+###Associations
+I expect the states with more people attending church to have voted for Trump as I believe religious people are more likely to vote for him. In addition, I anticipate that confederate states will be more likely to be Trump states as, historically, they have been of the Republican demographic. Lastly, I anticipate their to be more teenage pregnancy in states that support Trump as they would likely have more stringent laws on abortion as that is typically a Republican value. 
+
+##Tidying: Rearranging Wide/Long
+```{R}
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+TeenPregnancy<-select(TeenPregnancy, -c(X)) %>%glimpse()
+Election16<-select(Election16, -c(X, State))
+colnames(Election16)[colnames(Election16)=="Abr"]<-"State"
+glimpse(Election16)
+```
+
+I subtracted the X column from both of the datasets. I also got rid of the full name for State in Election16 and changed the abbreviation column to "State" in order to match the other dataset
+
+```{R}
+wideteenpreg<-TeenPregnancy%>%pivot_wider(names_from="CivilWar", values_from="State")
+wideelection16<-Election16%>%pivot_wider(names_from="TrumpWin", values_from="State")
+colnames(wideelection16)[colnames(wideelection16)=="1"]<-"Win"
+colnames(wideelection16)[colnames(wideelection16)=="0"]<-"Lose"
+glimpse(wideteenpreg)
+glimpse(wideelection16)
+```
+
+I widened TeenPregnancy so that each variable for Civil War was it's own column and the values for that were the state. Similarily, I widened Election16 data so that whether Trump won or lost had it's own column by state. The data is now untidied.
+
+```{R}
+TeenPregnancy1<-wideteenpreg%>%pivot_longer(cols=c(3:6),names_to = "CivilWar", values_to="State")%>%na.omit()%>%glimpse()
+Election161<-wideelection16%>%pivot_longer(cols=c(6:7),names_to = "TrumpWin",values_to = "State")%>%na.omit()%>%glimpse()
+```
+
+I used pivot_longer here to recombine the Civil War values to one column and return State to it's in own. I also used pivot_longer to recombine TrumpWin into one column and return State to a separate one. 
+
+##Joining/Merging
+```{R}
+FullData<-full_join(TeenPregnancy1, Election161, by=c("State"))
+FullData[c(4,1,2,3,5,6,7,8,9,10)]
+```
+
+I used a full join here so that I could keep all of the columns as I think they could all have interesting trends among them. Because they all have a common variable of state they fit nicely together with each column bringing data to the other set. I did not have to collapse any variables. 
+
+##Wrangling
+```{R}
+FullData%>%filter(TrumpWin=="Win" & Dem.Rep==min(Dem.Rep))
+FullData%>%filter(TrumpWin=="Lose" & Dem.Rep==max(Dem.Rep))
+```
+
+I wanted to filter my data to look at the extremes first so I looked at the state with Trump Winning and minimum Dem.Rep lean. The rate of teen pregnancy is 56 per 1000 teenage girls in this state, Wyoming. On the otherhand, the state with the highest Dem.Rep lean that did not vote for Trump was Vermont with a 42 per 1000 teenage girls teen pregnancy rate. 
+
+```{R}
+FullData%>%arrange(desc(Teen))
+FullData%>%arrange(Church)
+```
+
+For arranging my data, I first looked at the rates of Teen pregnancy by state from highest to lowest to see if I could see any general trends in whether or not Trump Won that state. For the most part, it seems random. Interestingly though, when arranging by the rate at which people attend church, the likelikhood of Trump winning increases with increasing churchgoers. 
+
+```{R}
+FullData%>%select(State, CivilWar, TrumpWin)
+FullData<-FullData%>%rename(TeenPreg=Teen)
+FullData%>%select(State, TeenPreg, TrumpWin)%>%arrange(TeenPreg)
+Teen_vec<-FullData%>%pull(TeenPreg)
+mean(Teen_vec)
+```
+
+I selected for CivilWar status, TrumpWin, and state to get a more clear idea if the opinions held in the state have been relatively stable other past century and a half. Some line up while others don't. I renamed Teen to TeenPreg to make it a more clear variable. I also compared my two main variables by increasing teen pregnancy rate to see a more clear picture of the data.  I pulled Teen Pregnancy as a vector to get the mean.
+
+```{R}
+FullData<-FullData%>%mutate(TeenPer=(TeenPreg/1000)*100)
+FullData<-FullData%>%mutate(`income_pctile`=ntile(Income,100))
+FullData%>%arrange(desc(income_pctile))
+FullData <-FullData %>% mutate(CivilWar=recode_factor(CivilWar,"U"="Union","O"="Other","C"="Confederate","B"="Border"))
+```
+I mutated the Teen Pregnancy rate from a number per 1000 teenage girls to a percent. I also made a new column for the percentile each state is in for income. I recoded the initials for Civil War status to the proper name to make it easier to read for someone not familiar with the dataset. 
+
+```{R}
+FullData%>%summarize(mean(TeenPreg, na.rm=T), n(), n_Church=n_distinct(Church))
+```
+
+I looked at the summarize function with mean of Teen Pregnancy as well as verified total number of observation numbers and number of distinct options for Church.
+
+```{R}
+FullData%>%group_by(CivilWar)%>%glimpse()
+```
+
+I grouped by CivilWar status to look at the differences between each group. 
+
+```{R}
+FullData%>%group_by(CivilWar)%>%summarize(mean_teenper=mean(TeenPer,na.rm=T), sd_teenper=sd(TeenPer, na.rm=T))
+FullData%>%group_by(TrumpWin)%>%summarize(mean_teen=mean(TeenPreg,na.rm=T), sd_teen=sd(TeenPreg, na.rm=T))
+FullData%>%group_by(TrumpWin)%>%summarize(mean_hs=mean(HS,na.rm=T), sd_hs=sd(HS, na.rm=T))
+FullData%>%group_by(TrumpWin)%>%summarize(mean_ba=mean(BA,na.rm=T), sd_ba=sd(BA, na.rm=T))
+FullData%>%group_by(TrumpWin)%>%summarize(mean_church=mean(Church,na.rm=T), sd_church=sd(Church, na.rm=T))
+FullData%>%group_by(TrumpWin)%>%summarize(max(Income),min(Income))
+FullData%>%summarize(max(Dem.Rep), min(Dem.Rep))
+FullData%>%group_by(TrumpWin,CivilWar)%>%summarise(mean_teen=mean(TeenPreg,na.rm=T), sd_teen=sd(TeenPreg, na.rm=T))
+FullData%>%group_by(CivilWar)%>%summarize(max(Adv),min(Adv))
+```
+I used group_by and summarize to look at my numeric variables under different comparisons. 
+
+```{R}
+FullData%>%select_if(is.numeric)%>%na.omit%>%cor
+```
+
+I used the correlation matrix to look at the relationships between all numeric variables.
+
+###Results
+I used the grouping by and summarize function together to explore the means of specific variables. I grouped by CivilWar to look at mean percent of teenage pregnancy and found that there is about a two percent increase from union to confederate states. When grouped by TrumpWin, there is an increase of 5 pregnant teens on average from "Lose" to "Win" with a decreasing standard deviation, respectively. The difference between mean/standard deviation of high school graduates from Trump Win states and Trump Lose states is minimal. On the otherhand, there is a 7% increase from Trump Win states to Trump lose states for the mean of bachelors degrees in the state with a 2% difference in standard deviation. Between churchgoers, 9% more attended in Trump Win states, with the standard deviations being close. The maximum income for states is similar for Trump Lose and Win states but the minimum is slightly higher in Trump Lose states. The high Dem.Rep lean was 22 while the low was -32. When grouped by TrumpWin and CivilWar, the mean of teenage pregnancy increases from Lose to Win and from Union to Confederate within each. Lastly, the percent receiving advanced degrees has a higher max in union than border states with the minimums of each CivilWar group being around the same value. 
+
+I created a correlation matrix of my numeric variables. The strongest correlation was between percentage with a bacherlors degree and percent with an advanced degree. The most negative correlation was between high school graduates and teen pregnancy. 
+
+##Visualizing
+```{R}
+library(ggplot2)
+ggplot(FullData, aes(x = CivilWar, y = TeenPer, fill=TrumpWin))+geom_bar(stat="summary",fun.y="mean", position="dodge")+geom_errorbar(stat="summary",position="dodge")+scale_fill_manual("Trump Status", values = c("Lose" = "blue", "Win" = "red"))+ggtitle("Teen Pregnancy by Trump Hold") + ylab("Percent of Teenage Pregnancy") + xlab("Civil War Status")+theme_light()+scale_y_continuous(breaks=seq(0,7,.5))
+
+FullData%>%filter(TrumpWin=="Lose" & CivilWar=="Confederate")
+```
+
+Before develing into the results, there are two noticable aspects of this graph. One is that there are no border states that lost Trump's vote, which is why there is one less blue bar. Second, there is only one confederate state that lost Trump's vote, so there is no error bar on that bar. As far as the results, it is notable that the union states, overall, have a lower teenage pregnancy rate despite if they won or lost Trump's vote. The highest rate of teenage pregnancy falls under the confederate states that voted for Trump. The rate of other states that lost Trump's vote and border state's that voted for Trump are not far behind indicating there is not a clear trend as far as whether or not voting for Trump correlates to higher rates of teenage pregnancy. 
+
+```{R}
+ggplot(FullData, aes(HS,TeenPer))+geom_point(size=5,aes(color=Income))+scale_color_gradient(low="white", high="green")+theme_dark()+ggtitle("Teen Pregnancy by High School Graduates") + ylab("Percent of Teenage Pregnancy") + xlab("Percent of High Scool Graduates")+scale_y_continuous(breaks=seq(3,8,.5))
+```
+
+This graph has more notable trends than the previous. It is apparent that states with higher percentages of high school graduates have lower rates of teenage pregnancy. In addition, the color gradient shows that states with higher income have higher percent of high school graduates which makes sense. Lastly, it appears that states with higher incomes have decreasing percents of teenage pregnancy. 
+
+##Dimensionality Reduction
+```{R}
+FullData_nums<-FullData%>%select_if(is.numeric)%>%scale
+rownames(FullData_nums)<-FullData$State
+FullData_pca<-princomp(FullData_nums)
+names(FullData_pca)
+summary(FullData_pca, loadings=T)
+eigval<-FullData_pca$sdev^2
+varprop=round(eigval/sum(eigval),2) 
+```
+I scaled and selected numeric variables in order to use with princomp and ran the summary to look at the standard deviation, proportion of variance, and cumulative proportion of each principle component. The Eigen value is the standard deviations squared. 
+```{R}
+ggplot()+geom_bar(aes(y=varprop,x=1:9),stat="identity")+xlab("")+geom_path(aes(y=varprop,x=1:9))+
+  geom_text(aes(x=1:9,y=varprop,label=round(varprop,2)),vjust=1,col="white",size=5)+
+  scale_y_continuous(breaks=seq(0,.6,.2),labels = scales::percent)+
+  scale_x_continuous(breaks=1:10)
+```
+When plotted in a scree plot, the first two principal components account for 0.8 of the total variance proportion, so I chose to use only those first two. 
+
+```{R}
+library(ggrepel)
+FullData_df<-FullData%>%mutate(PC1=FullData_pca$scores[,1], PC2=FullData_pca$scores[,2])
+ggplot(FullData_df,aes(PC1, PC2,color=TrumpWin))+geom_point()+geom_text_repel(aes(label=State),color="Black")
+```
+PC1 appears to separate the dataset based on whether Trump won or lost with lost being on the higher side of PC1. Among those states are the wealthy, more educated, northeastern states that tend to vote Democratic. They are also lower on teen pregnancy rates. On the low end of PC1 are the states that voted for Trump that tend to be Republican. This side is higher on teen pregnancy rates. This coincides with my predictions that states that voted for Trump would have higher teen pregnancy rates. 
+
+Higher on PC2 states are ones more likely to graduate high school, while low PC2 states have higher teen pregnancy rates. Lower PC2 states also have a higher Dem.Rep lean so they are more likely Democratic. While looking at the states, low on PC2 are California and New York, which would make sense with these parameters. Interestingly though, states such as Wyoming and Montana with low populations and vast area, are high on PC2. This would coincide for the Dem.Rep lean, but it is interesting that they would have notable lower teen pregnancy rates. 
+
+```{R}
+FullData_pca$loadings[1:9,1:2]%>%as.data.frame%>%rownames_to_column%>%
+ggplot()+geom_hline(aes(yintercept=0),lty=2)+
+  geom_vline(aes(xintercept=0),lty=2)+ylab("PC2")+xlab("PC1")+
+  geom_segment(aes(x=0,y=0,xend=Comp.1,yend=Comp.2),arrow=arrow(),col="red")+
+  geom_label(aes(x=Comp.1*1.1,y=Comp.2*1.1,label=rowname))
+```
