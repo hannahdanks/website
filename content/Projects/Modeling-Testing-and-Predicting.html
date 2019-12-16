@@ -84,7 +84,8 @@ Union, Other, Union, Union, Confederate,…
 </div>
 <div id="manova" class="section level1">
 <h1>Manova</h1>
-<p>##Manova Test</p>
+<div id="manova-test" class="section level2">
+<h2>Manova Test</h2>
 <pre class="r"><code>manovatest&lt;-manova(cbind(Church,Income,Teen,Dem.Rep,HS,BA,Adv)~CivilWar, data=FullData)
 summary(manovatest)</code></pre>
 <pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
@@ -94,7 +95,9 @@ summary(manovatest)</code></pre>
 ## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
 &#39; &#39; 1</code></pre>
 <p>Using a MANOVA, the effect of Civil War status on the Church goers, income, teenage pregnancy rates, Democractic Republican lean, high school graduates, people with Bachelors degrees, and people with advanced degrees was determined. The MANOVA test was significant meaning for at least one response variable, at least one group mean differs on the basis of Civil War status.</p>
-<p>##Anova Test</p>
+</div>
+<div id="anova-test" class="section level2">
+<h2>Anova Test</h2>
 <pre class="r"><code>summary.aov(manovatest)</code></pre>
 <pre><code>## Response Church :
 ## Df Sum Sq Mean Sq F value Pr(&gt;F)
@@ -163,7 +166,9 @@ summary(manovatest)</code></pre>
 ## 4 Border 38.3 46264 61.7 -8 86.5 24.5
 ## # … with 1 more variable: `mean(Adv)` &lt;dbl&gt;</code></pre>
 <p>Using the ANOVA, all of them are significant without the corrected Bonferroni. When using the corrected p-value, Dem.Rep, Income, Bachelors degrees, and Advanced degrees do not show significant differences between different levels of the categorical variables.</p>
-<p>##T-Tests</p>
+</div>
+<div id="t-tests" class="section level2">
+<h2>T-Tests</h2>
 <pre class="r"><code>pairwise.t.test(FullData$Church,FullData$CivilWar, p.adj=&quot;none&quot;)</code></pre>
 <pre><code>## 
 ##  Pairwise comparisons using t tests with pooled SD 
@@ -249,7 +254,9 @@ summary(manovatest)</code></pre>
 ## 
 ## P value adjustment method: none</code></pre>
 <p>Pairwise t-tests were used for post hoc analysis to find significant differences in groups using corrected p-value. For churchgoers and high school graduates, Conferate and Union and Confederate and Other differed significantly. For Income, Bachelors degrees, and Teen pregnancy, Confederate and Union differed significantly. For Democratic Republican lean, only Union and Other differed significantly. For Advanced degress, no Civil War groups differed significantly.</p>
-<p>##Bonferroni Correction</p>
+</div>
+<div id="bonferroni-correction" class="section level2">
+<h2>Bonferroni Correction</h2>
 <pre class="r"><code>1+7+(7*6) #Number of Tests</code></pre>
 <pre><code>## [1] 50</code></pre>
 <pre class="r"><code>1-0.95^50 #Probability of at least one type I error</code></pre>
@@ -258,9 +265,11 @@ summary(manovatest)</code></pre>
 <pre><code>## [1] 0.001</code></pre>
 <p>With the Bonferroni correction, there is a 0.923055 chance of at least one type I error and the new corrected p-value will be 0.001 based on the 50 tests from 7 dependent variables and 6 unique pairs. The assumptions for MANOVA are random samples, multivariate normality of dependent variables, homogenity of within-group covariance matrices, linear relationships among dependent variables, no extreme outliers, and no mulitcollinearity. The assumptions that would probably not be met are extreme outliers and no multicollinearity because some states are on the extreme end and have values that coincide and a lot of the dependent variables are correlated with each other and show certain trends that follow each other.</p>
 </div>
+</div>
 <div id="randomization-test" class="section level1">
 <h1>Randomization Test</h1>
-<p>##Creating Vectors for Randomization Test</p>
+<div id="creating-vectors-for-randomization-test" class="section level2">
+<h2>Creating Vectors for Randomization Test</h2>
 <pre class="r"><code>Trump&lt;-FullData%&gt;%dplyr::select(TrumpWin,Teen)
 TrumpWon&lt;-Trump%&gt;%filter(TrumpWin==&quot;1&quot;)
 TrumpLost&lt;-Trump%&gt;%filter(TrumpWin==&quot;0&quot;)
@@ -268,7 +277,9 @@ TrumpWon&lt;-as.vector(TrumpWon%&gt;%dplyr::select(-TrumpWin))
 TrumpLost&lt;-as.vector(TrumpLost%&gt;%dplyr::select(-TrumpWin))
 TrumpWon&lt;- as.numeric(TrumpWon$Teen)
 TrumpLost&lt;-as.numeric(TrumpLost$Teen)</code></pre>
-<p>##Randomization Test</p>
+</div>
+<div id="randomization-test-1" class="section level2">
+<h2>Randomization Test</h2>
 <pre class="r"><code>RandomTest&lt;-data.frame(condition=c(rep(&quot;TrumpWon&quot;,30),rep(&quot;TrumpLost&quot;,20)),
                        teen=c(TrumpWon,TrumpLost))
 
@@ -299,7 +310,7 @@ rand_dist[i]&lt;-mean(new[new$condition==&quot;TrumpWon&quot;,]$teen)-
 {hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = 5.416667,col=&quot;red&quot;)}</code></pre>
 <p><img src="/Projects/Modeling-Testing-and-Predicting_files/figure-html/unnamed-chunk-7-2.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>mean(rand_dist&gt;5.416667)*2 #P-value</code></pre>
-<pre><code>## [1] 0.1096</code></pre>
+<pre><code>## [1] 0.1076</code></pre>
 <pre class="r"><code>t.test(data=RandomTest,teen~condition)</code></pre>
 <pre><code>##
 ## Welch Two Sample t-test
@@ -314,7 +325,10 @@ equal to 0
 ## mean in group TrumpLost mean in group TrumpWon
 ## 51.45000 56.86667</code></pre>
 <p>The null hypothesis is that the mean of teen pregnancy for states that Trump Won is the same for states that Trump Lost. The alternative hypothesis is that the mean of teen pragnancy for states that Trump Won is different than that of states that Trump lost. A randomization test was conducted using repeated random sampling. The pvalue is not significant so we accept the null and say that the two means are not significantly different.</p>
-<p>#Linear Regression Model</p>
+</div>
+</div>
+<div id="linear-regression-model" class="section level1">
+<h1>Linear Regression Model</h1>
 <pre class="r"><code>FullData$HS_c&lt;-FullData$HS-mean(FullData$HS)
 
 fit&lt;-lm(Teen~TrumpWin*HS_c,data=FullData)
@@ -345,7 +359,8 @@ summary(fit)</code></pre>
 theme(legend.position=c(.9,.19))+xlab(&quot;&quot;)</code></pre>
 <p><img src="/Projects/Modeling-Testing-and-Predicting_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;" />
 Controlling for Trump Win, on average, every one unit increase in high school graduates, there is a 3.0215 decrease in teenage pregnancy. Controlling for high school graduates, 2.8775 is the difference in Teenage pregnancy rates for Trump Win and Trump Lose states. The intercept means that if all else equals zero, teenage pregnancy rate will be 53.0695. The interaction shows the difference in slopes for Trump Win and Trump Lose when not controlling for high school graduates. The slope for Trump Lose would just be -3.015, while the slope for Trump Win is (-3.015+.448)=(-2.5735). The proportion of variation explained is the R squared value, which is 0.5678.</p>
-<p>##Assumptions</p>
+<div id="assumptions" class="section level2">
+<h2>Assumptions</h2>
 <pre class="r"><code>library(sandwich); library(lmtest)
 resids&lt;-fit$residuals
 
@@ -386,6 +401,7 @@ coeftest(fit,vcov=vcovHC(fit)) </code></pre>
 &#39; &#39; 1</code></pre>
 <p>The regression is not homoskedastic, but is linear and normal. There is no difference between before and after the robust SE for any of the coefficients, however, all of the standard errors increase slightly, meaning the t-value would go down and that, therefore, the p-value would go up.</p>
 </div>
+</div>
 <div id="linear-regression-model-with-bootstrapped-standard-errors" class="section level1">
 <h1>Linear Regression Model with Bootstrapped Standard Errors</h1>
 <pre class="r"><code>samp_distn&lt;-replicate(5000, {
@@ -395,12 +411,13 @@ coeftest(fit,vcov=vcovHC(fit)) </code></pre>
 })
 samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept) TrumpWin      HS_c TrumpWin:HS_c
-## 1    2.391192 2.708763 0.9731037      1.061934</code></pre>
+## 1    2.325847 2.657713 0.9716324      1.051262</code></pre>
 <p>These boot strapped SEs are all larger than the original SEs, but they are all smaller than the robust SEs. Because the standard errors are smaller than the robust standard errors, they have a larger t-value and thus a smaller p-value, which is better because it is harder to reject the null. This is the opposite thinking of the original SEs.</p>
 </div>
 <div id="logistic-regression" class="section level1">
 <h1>Logistic Regression</h1>
-<p>##Classification Diagnostics</p>
+<div id="classification-diagnostics" class="section level2">
+<h2>Classification Diagnostics</h2>
 <pre class="r"><code>library(MASS)
 library(lmtest)
 class_diag&lt;-function(probs,truth){
@@ -421,7 +438,9 @@ class_diag&lt;-function(probs,truth){
  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
  data.frame(acc,sens,spec,ppv,auc)
 } </code></pre>
-<p>##Logististic Regression</p>
+</div>
+<div id="logististic-regression" class="section level2">
+<h2>Logististic Regression</h2>
 <pre class="r"><code>bindat&lt;-FullData%&gt;%dplyr::select(TrumpWin,HS,Teen)
 fit&lt;-glm(TrumpWin~(.),data=bindat,family=&quot;binomial&quot;)
 coeftest(fit)</code></pre>
@@ -440,7 +459,9 @@ class_diag(prob,bindat$TrumpWin)</code></pre>
 <pre><code>##    acc      sens spec       ppv       auc
 ## 1 0.66 0.8666667 0.35 0.6666667 0.6516667</code></pre>
 <p>Controlling for high school graduates, every 1 unit increase in teenage pregnancy, odds of Trump Win change by a factor of 1.05212=e^0.0508. Controlling for teenage pregnancy, every 1 unit increase in high school graduates, odds of Trump Win change by a factor of 1.0435=e^0.042537. The accuracy was 0.66, sensitivity was 0.867, specificity was 0.35, and ppv was 0.667.</p>
-<p>##Confusion Matrix</p>
+</div>
+<div id="confusion-matrix" class="section level2">
+<h2>Confusion Matrix</h2>
 <pre class="r"><code>bindat$prob&lt;-predict(fit,type=&quot;response&quot;)
 table(predict=as.numeric(bindat$prob&gt;.5),truth=bindat$TrumpWin)%&gt;%addmargins</code></pre>
 <pre><code>##        truth
@@ -448,7 +469,9 @@ table(predict=as.numeric(bindat$prob&gt;.5),truth=bindat$TrumpWin)%&gt;%addmargi
 ##     0    7  4  11
 ##     1   13 26  39
 ##     Sum 20 30  50</code></pre>
-<p>##Plot Density of Log-Odds (logit) By Binary Outcome Variable</p>
+</div>
+<div id="plot-density-of-log-odds-logit-by-binary-outcome-variable" class="section level2">
+<h2>Plot Density of Log-Odds (logit) By Binary Outcome Variable</h2>
 <pre class="r"><code>data&lt;-bindat
 data$TrumpWin</code></pre>
 <pre><code>## [1] 1 1 1 1 0 0 0 0 1 1 0 1 1 0 1 1 1 1 0 0 0 1 0 1 1 1
@@ -460,7 +483,9 @@ data$logit&lt;-predict(fit,type=&quot;link&quot;)
 data%&gt;%ggplot()+geom_density(aes(logit,color=TrumpWin,fill=TrumpWin), alpha=.4)+
   theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab(&quot;predictor (logit)&quot;)</code></pre>
 <p><img src="/Projects/Modeling-Testing-and-Predicting_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;" /></p>
-<p>##ROC Curve</p>
+</div>
+<div id="roc-curve" class="section level2">
+<h2>ROC Curve</h2>
 <pre class="r"><code>data$prob&lt;-predict(fit,type = &quot;response&quot;)
 sens&lt;-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==1,]$prob&gt;p)
 spec&lt;-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==0,]$prob&lt;p)
@@ -475,7 +500,9 @@ ROC1%&gt;%ggplot(aes(FPR,TPR))+geom_path(size=1.5)+geom_segment(aes(x=0,y=0,xend
  scale_x_continuous(limits = c(0,1))</code></pre>
 <p><img src="/Projects/Modeling-Testing-and-Predicting_files/figure-html/unnamed-chunk-15-1.png" width="768" style="display: block; margin: auto;" />
 The ROC curve shows that this is not a very good predictor because the line shows that the true positive rate almost follows the false positive rate.</p>
-<p>##AUC</p>
+</div>
+<div id="auc" class="section level2">
+<h2>AUC</h2>
 <pre class="r"><code>widths&lt;-diff(ROC1$FPR)
 heights&lt;-vector()
 for(i in 1:100) heights[i]&lt;-ROC1$TPR[i]+ROC1$TPR[i+1]
@@ -483,7 +510,9 @@ AUC&lt;-sum(heights*widths/2)
 AUC%&gt;%round(3)</code></pre>
 <pre><code>## [1] -0.651</code></pre>
 <p>The AUC is 0.651 which is not a very good predictor. The AUC is the probability that a randomly selected state who voted for Trump has a higher prediction than a randomly selected state that didn’t vote for Trump.</p>
-<p>##10-Fold CV</p>
+</div>
+<div id="fold-cv" class="section level2">
+<h2>10-Fold CV</h2>
 <pre class="r"><code>set.seed(1234)
 k=5 
 data1&lt;-bindat[sample(nrow(bindat)),]
@@ -502,9 +531,11 @@ apply(diags,2,mean) </code></pre>
 ## 0.6200000 0.8100000 0.3266667 0.6464286 0.5213333</code></pre>
 <p>For the 10-fold, there had to be an adjustment to 5-fold. The accuracy was 0.58, sensitivity was 0.747, and the recall was 0.587.</p>
 </div>
+</div>
 <div id="lasso-regression" class="section level1">
 <h1>LASSO Regression</h1>
-<p>##LASSO</p>
+<div id="lasso" class="section level2">
+<h2>LASSO</h2>
 <pre class="r"><code>library(glmnet)
 library(boot)
 library(foreach)
@@ -580,7 +611,9 @@ coef(lasso)</code></pre>
 ## Dem.Rep             -0.04279579
 ## HS_c                 .</code></pre>
 <p>Church, BA, Adv, Income, and Dem.Rep all had values for the lasso and so they are retained.</p>
-<p>##10-Fold CV</p>
+</div>
+<div id="fold-cv-1" class="section level2">
+<h2>10-Fold CV</h2>
 <pre class="r"><code>set.seed(1234)
 k=5
 data1&lt;-FullData[sample(nrow(FullData)),] 
@@ -600,4 +633,5 @@ diags%&gt;%summarise_all(mean)</code></pre>
 <pre><code>##    acc sens      spec       ppv   auc
 ## 1 0.84 0.91 0.7533333 0.8539683 0.942</code></pre>
 <p>The accuracy was 0.58 and has now increased to 0.84, which is substantial.</p>
+</div>
 </div>

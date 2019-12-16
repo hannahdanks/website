@@ -55,14 +55,14 @@ These are previously merged datasets from Project 1. The first dataset was rates
 
 # Manova
 
-##Manova Test
+## Manova Test
 ```{R}
 manovatest<-manova(cbind(Church,Income,Teen,Dem.Rep,HS,BA,Adv)~CivilWar, data=FullData)
 summary(manovatest)
 ```
 Using a MANOVA, the effect of Civil War status on the Church goers, income, teenage pregnancy rates, Democractic Republican lean, high school graduates, people with Bachelors degrees, and people with advanced degrees was determined. The MANOVA test was significant meaning for at least one response variable, at least one group mean differs on the basis of Civil War status.
 
-##Anova Test
+## Anova Test
 ```{R}
 summary.aov(manovatest)
 
@@ -71,7 +71,7 @@ FullData%>%group_by(CivilWar)%>%
 ```
 Using the ANOVA, all of them are significant without the corrected Bonferroni. When using the corrected p-value, Dem.Rep, Income, Bachelors degrees, and Advanced degrees do not show significant differences between different levels of the categorical variables.
 
-##T-Tests
+## T-Tests
 ```{R}
 pairwise.t.test(FullData$Church,FullData$CivilWar, p.adj="none")
 pairwise.t.test(FullData$Income,FullData$CivilWar,p.adj="none")
@@ -83,7 +83,7 @@ pairwise.t.test(FullData$Adv,FullData$CivilWar,p.adj="none")
 ```
 Pairwise t-tests were used for post hoc analysis to find significant differences in groups using corrected p-value. For churchgoers and high school graduates, Conferate and Union and Confederate and Other differed significantly. For Income, Bachelors degrees, and Teen pregnancy, Confederate and Union differed significantly. For Democratic Republican lean, only Union and Other differed significantly. For Advanced degress, no Civil War groups differed significantly.
 
-##Bonferroni Correction
+## Bonferroni Correction
 ```{R}
 1+7+(7*6) #Number of Tests
 1-0.95^50 #Probability of at least one type I error
@@ -93,7 +93,7 @@ With the Bonferroni correction, there is a 0.923055 chance of at least one type 
 
 # Randomization Test
 
-##Creating Vectors for Randomization Test
+## Creating Vectors for Randomization Test
 ```{R}
 Trump<-FullData%>%dplyr::select(TrumpWin,Teen)
 TrumpWon<-Trump%>%filter(TrumpWin=="1")
@@ -104,7 +104,7 @@ TrumpWon<- as.numeric(TrumpWon$Teen)
 TrumpLost<-as.numeric(TrumpLost$Teen)
 ```
 
-##Randomization Test
+## Randomization Test
 ```{R}
 RandomTest<-data.frame(condition=c(rep("TrumpWon",30),rep("TrumpLost",20)),
                        teen=c(TrumpWon,TrumpLost))
@@ -132,7 +132,7 @@ t.test(data=RandomTest,teen~condition)
 ```
 The null hypothesis is that the mean of teen pregnancy for states that Trump Won is the same for states that Trump Lost. The alternative hypothesis is that the mean of teen pragnancy for states that Trump Won is different than that of states that Trump lost. A randomization test was conducted using repeated random sampling. The pvalue is not significant so we accept the null and say that the two means are not significantly different. 
 
-#Linear Regression Model
+# Linear Regression Model
 ```{R}
 FullData$HS_c<-FullData$HS-mean(FullData$HS)
 
@@ -145,7 +145,7 @@ theme(legend.position=c(.9,.19))+xlab("")
 ```
 Controlling for Trump Win, on average, every one unit increase in high school graduates, there is a 3.0215 decrease in teenage pregnancy. Controlling for high school graduates, 2.8775 is the difference in Teenage pregnancy rates for Trump Win and Trump Lose states. The intercept means that if all else equals zero, teenage pregnancy rate will be 53.0695. The interaction shows the difference in slopes for Trump Win and Trump Lose when not controlling for high school graduates. The slope for Trump Lose would just be -3.015, while the slope for Trump Win is (-3.015+.448)=(-2.5735). The proportion of variation explained is the R squared value, which is 0.5678.
 
-##Assumptions
+## Assumptions
 ```{R}
 library(sandwich); library(lmtest)
 resids<-fit$residuals
@@ -177,7 +177,7 @@ These boot strapped SEs are all larger than the original SEs, but they are all s
 
 # Logistic Regression
 
-##Classification Diagnostics
+## Classification Diagnostics
 ```{R}
 library(MASS)
 library(lmtest)
@@ -201,7 +201,7 @@ class_diag<-function(probs,truth){
 } 
 ```
 
-##Logististic Regression
+## Logististic Regression
 ```{R}
 bindat<-FullData%>%dplyr::select(TrumpWin,HS,Teen)
 fit<-glm(TrumpWin~(.),data=bindat,family="binomial")
@@ -212,13 +212,13 @@ class_diag(prob,bindat$TrumpWin)
 ```
 Controlling for high school graduates, every 1 unit increase in teenage pregnancy, odds of Trump Win change by a factor of 1.05212=e^0.0508. Controlling for teenage pregnancy, every 1 unit increase in high school graduates, odds of Trump Win change by a factor of 1.0435=e^0.042537. The accuracy was 0.66, sensitivity was 0.867, specificity was 0.35, and ppv was 0.667.
 
-##Confusion Matrix
+## Confusion Matrix
 ```{R}
 bindat$prob<-predict(fit,type="response")
 table(predict=as.numeric(bindat$prob>.5),truth=bindat$TrumpWin)%>%addmargins
 ```
 
-##Plot Density of Log-Odds (logit) By Binary Outcome Variable
+## Plot Density of Log-Odds (logit) By Binary Outcome Variable
 ```{R}
 data<-bindat
 data$TrumpWin
@@ -229,7 +229,7 @@ data%>%ggplot()+geom_density(aes(logit,color=TrumpWin,fill=TrumpWin), alpha=.4)+
   theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("predictor (logit)")
 ```
 
-##ROC Curve
+## ROC Curve
 ```{R}
 data$prob<-predict(fit,type = "response")
 sens<-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==1,]$prob>p)
@@ -246,7 +246,7 @@ ROC1%>%ggplot(aes(FPR,TPR))+geom_path(size=1.5)+geom_segment(aes(x=0,y=0,xend=1,
 ```
 The ROC curve shows that this is not a very good predictor because the line shows that the true positive rate almost follows the false positive rate.
  
-##AUC
+## AUC
 ```{R}
 widths<-diff(ROC1$FPR)
 heights<-vector()
@@ -256,7 +256,7 @@ AUC%>%round(3)
 ```
 The AUC is 0.651 which is not a very good predictor. The AUC is the probability that a randomly selected state who voted for Trump has a higher prediction than a randomly selected state that didn't vote for Trump.
 
-##10-Fold CV
+## 10-Fold CV
 ```{R}
 set.seed(1234)
 k=5 
@@ -277,7 +277,7 @@ For the 10-fold, there had to be an adjustment to 5-fold. The accuracy was 0.58,
 
 # LASSO Regression
 
-##LASSO
+## LASSO
 ```{R}
 library(glmnet)
 library(boot)
@@ -292,7 +292,7 @@ coef(lasso)
 ```
 Church, BA, Adv, Income, and Dem.Rep all had values for the lasso and so they are retained.
 
-##10-Fold CV
+## 10-Fold CV
 ```{R}
 set.seed(1234)
 k=5

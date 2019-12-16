@@ -26,8 +26,7 @@
       <pubDate>Tue, 15 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>/projects/exploratory-data-analysis/</guid>
-      <description>TeenPregnancy &amp;lt;- read.csv(&amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&amp;quot;) Election16 &amp;lt;- read.csv(&amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&amp;quot;) ##Intro
-###Teen Pregnancy This dataset shows rates of teenage girls pregnant per 1000 teenage girls in each state. It also has variables for Civil War role (i.e. whether that state was a border, confederate, union, or other) and for percent of people who attened church in the previous week from that state. This dataset had interesting variables that I thought would compare well to an election.</description>
+      <description>TeenPregnancy &amp;lt;- read.csv(&amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&amp;quot;) Election16 &amp;lt;- read.csv(&amp;quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&amp;quot;) Intro Teen Pregnancy This dataset shows rates of teenage girls pregnant per 1000 teenage girls in each state. It also has variables for Civil War role (i.e. whether that state was a border, confederate, union, or other) and for percent of people who attened church in the previous week from that state. This dataset had interesting variables that I thought would compare well to an election.</description>
     </item>
     
   </channel>
