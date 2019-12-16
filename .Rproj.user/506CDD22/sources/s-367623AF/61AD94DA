@@ -1,24 +1,24 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1576467052706.000,
-    "dirty" : true,
+    "created" : 1576468242101.000,
+    "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
-    "id" : "FCF085FF",
-    "lastKnownWriteTime" : 1576467057,
-    "last_content_update" : 1576467088213,
+    "id" : "61AD94DA",
+    "lastKnownWriteTime" : 1576468409,
+    "last_content_update" : 1576468409396,
     "path" : "~/Desktop/website/content/Projects/Modeling-Testing-and-Predicting.Rmd",
     "project_path" : "content/Projects/Modeling-Testing-and-Predicting.Rmd",
     "properties" : {
-        "cursorPosition" : "11,24",
+        "cursorPosition" : "1,8",
         "scrollLine" : "0"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 5,
+    "relative_order" : 4,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_markdown"

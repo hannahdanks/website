@@ -1,5 +1,5 @@
 ---
-title: 'Modeling, Testing, and Predicting'
+title: "Modeling, Testing, and Predicting"
 author: "Hannah Danks"
 date: "2019-11-11"
 output:
@@ -299,7 +299,7 @@ rand_dist[i]&lt;-mean(new[new$condition==&quot;TrumpWon&quot;,]$teen)-
 {hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = 5.416667,col=&quot;red&quot;)}</code></pre>
 <p><img src="/Projects/Modeling-Testing-and-Predicting_files/figure-html/unnamed-chunk-7-2.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>mean(rand_dist&gt;5.416667)*2 #P-value</code></pre>
-<pre><code>## [1] 0.0916</code></pre>
+<pre><code>## [1] 0.1096</code></pre>
 <pre class="r"><code>t.test(data=RandomTest,teen~condition)</code></pre>
 <pre><code>##
 ## Welch Two Sample t-test
@@ -395,7 +395,7 @@ coeftest(fit,vcov=vcovHC(fit)) </code></pre>
 })
 samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept) TrumpWin      HS_c TrumpWin:HS_c
-## 1    2.333481 2.624877 0.9583299       1.04755</code></pre>
+## 1    2.391192 2.708763 0.9731037      1.061934</code></pre>
 <p>These boot strapped SEs are all larger than the original SEs, but they are all smaller than the robust SEs. Because the standard errors are smaller than the robust standard errors, they have a larger t-value and thus a smaller p-value, which is better because it is harder to reject the null. This is the opposite thinking of the original SEs.</p>
 </div>
 <div id="logistic-regression" class="section level1">
