@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576457910014.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3164288637",
+    "id" : "FB78C4D9",
+    "lastKnownWriteTime" : 1576458278,
+    "last_content_update" : 1576458278367,
+    "path" : "~/Desktop/website/content/Projects/Modeling-Testing-and-Predicintg.Rmd",
+    "project_path" : "content/Projects/Modeling-Testing-and-Predicintg.Rmd",
+    "properties" : {
+        "cursorPosition" : "3,7",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

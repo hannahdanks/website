@@ -3,12 +3,52 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/categories/</loc>
-    <lastmod>2016-10-02T22:55:05-04:00</lastmod>
+    <loc>/resume/about-me/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/resume/accomplishments/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/resume/education/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/resume/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/resume/work-experiences/</loc>
+    <lastmod>2019-12-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/projects/modeling-testing-and-predicintg/</loc>
+    <lastmod>2019-11-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/projects/</loc>
+    <lastmod>2019-11-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/projects/exploratory-data-analysis/</loc>
+    <lastmod>2019-10-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
     <lastmod>2016-10-02T22:55:05-04:00</lastmod>
   </url>
   
@@ -18,12 +58,12 @@
   </url>
   
   <url>
-    <loc>/tags/projects/</loc>
+    <loc>/categories/projects/</loc>
     <lastmod>2016-10-02T22:55:05-04:00</lastmod>
   </url>
   
   <url>
-    <loc>/categories/projects/</loc>
+    <loc>/tags/projects/</loc>
     <lastmod>2016-10-02T22:55:05-04:00</lastmod>
   </url>
   
@@ -60,38 +100,6 @@
   <url>
     <loc>/blog/what-were-learning/</loc>
     <lastmod>2015-07-23T21:13:14-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/resume/about-me/</loc>
-  </url>
-  
-  <url>
-    <loc>/resume/accomplishments/</loc>
-  </url>
-  
-  <url>
-    <loc>/resume/education/</loc>
-  </url>
-  
-  <url>
-    <loc>/projects/exploratory-data-analysis/</loc>
-  </url>
-  
-  <url>
-    <loc>/projects/modeling-testing-and-predicting/</loc>
-  </url>
-  
-  <url>
-    <loc>/projects/</loc>
-  </url>
-  
-  <url>
-    <loc>/resume/</loc>
-  </url>
-  
-  <url>
-    <loc>/resume/work-experiences/</loc>
   </url>
   
 </urlset>

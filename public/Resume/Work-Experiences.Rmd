@@ -1,7 +1,7 @@
 ---
 title: "Work Experience"
 author: "HD"
-date: "12/15/2019"
+date: 2019-12-12
 output: html_document
 ---
 
@@ -11,4 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Work Experience
 
-I have worked as a kennel technician for over 350 hours at the Legacy Veterinary Hospital in Frisco, Texas, practicing skills such as medicating, expressing anal glands, and nail trims. I have worked as a technicians’ assistant since April of 2019 for Crestview Veterinary Clinic in Austin, Texas.
+I have worked as a kennel technician for over 350 hours at the Legacy Veterinary Hospital in Frisco, Texas, practicing skills such as medicating, hygiene techniques, and nail trims. I have worked as a technicians’ assistant since April of 2019 for Crestview Veterinary Clinic in Austin, Texas where I have gained experiences such as blood draws and other teching duties. I was also a teaching assistant in the Fall of 2019 for a Neuroscience class, From the Eye to the Brain. 
+
+## Research Experience
+
+In the summer of 2018, I worked as a research assistant at the University of Sydney, in the veterinary school. I conducted research in Parasitology on toxoplasma. 
+
+In addition, I conducted field research at the Tiputini Biodiversity Station in the summer of 2019. I researched the visual systems and behaviors of various species of primates in the Ecuadorian Amazon. 

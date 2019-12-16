@@ -1,7 +1,7 @@
 ---
 title: "Education"
 author: "HD"
-date: "12/15/2019"
+date: 2019-12-12
 output: html_document
 ---
 
@@ -13,6 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 I have attended the University of Texas at Austin, where I will obtain a Bachelors in Science and Art in the Fall of 2019. My degree was focused in Biology with a study equivalent to a minor in Psychology. I have also received a Pre-Health Professions Certificate during this time.
 
-### Skills
+## Skills
 
-I have a base level knowledge of R Studio and Python.
+I have a base level knowledge of R Studio and Python. I have also acquired basic veterinary teching skills including: restraints, blood draws, nail trims, and other hygiene techniques. 

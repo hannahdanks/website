@@ -1,7 +1,7 @@
 ---
 pdf_document: default
 author: "Hannah Danks"
-date: "10/15/2019"
+date: 2019-10-15
 output:
   html_document: default
   pdf_document: default

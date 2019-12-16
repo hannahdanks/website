@@ -1,0 +1,603 @@
+---
+title: 'Modeling, Testing, and Predicting'
+author: "Hannah Danks"
+date: "2019-11-11"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+
+
+<div id="calling-dataset-and-tidying-before-using" class="section level1">
+<h1>Calling Dataset and Tidying Before Using</h1>
+<pre class="r"><code>library(dplyr);library(tidyverse)
+TeenPregnancy&lt;-read.csv(
+  &quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv&quot;)
+Election16&lt;-read.csv(
+  &quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Election16.csv&quot;)
+TeenPregnancy&lt;-dplyr::select(TeenPregnancy, -c(X)) %&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 50
+## Variables: 4
+## $ State &lt;fct&gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA,
+HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, …
+## $ CivilWar &lt;fct&gt; O, C, C, O, U, O, U, U, C, C, O, U, O,
+U, U, U, B, C, U, U, U, U, U, B, C, O, C,…
+## $ Church &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39,
+25, 32, 34, 32, 35, 33, 41, 46, 22, 31, …
+## $ Teen &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65,
+44, 47, 57, 53, 53, 62, 69, 37, 57, …</code></pre>
+<pre class="r"><code>Election16&lt;-dplyr::select(Election16, -c(X, State))
+colnames(Election16)[colnames(Election16)==&quot;Abr&quot;]&lt;-&quot;State&quot;
+glimpse(Election16)</code></pre>
+<pre><code>## Observations: 50
+## Variables: 7
+## $ State &lt;fct&gt; AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA,
+HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, …
+## $ Income &lt;int&gt; 43623, 72515, 50255, 41371, 61818, 60629,
+70331, 60509, 47507, 49620, 69515, 475…
+## $ HS &lt;dbl&gt; 84.3, 92.1, 86.0, 84.8, 81.8, 90.7, 89.9,
+88.4, 86.9, 85.4, 91.0, 89.5, 87.9, 87…
+## $ BA &lt;dbl&gt; 23.5, 28.0, 27.5, 21.1, 31.4, 38.1, 37.6,
+30.0, 27.3, 28.8, 30.8, 25.9, 32.3, 24…
+## $ Adv &lt;dbl&gt; 8.7, 10.1, 10.2, 7.5, 11.6, 14.0, 16.6,
+12.2, 9.8, 10.7, 10.5, 8.2, 12.4, 8.7, 8…
+## $ Dem.Rep &lt;int&gt; -17, -17, -1, -7, 16, -1, 11, 6, 1, -4,
+21, -30, 11, -6, -3, -13, -3, -2, -4, 15…
+## $ TrumpWin &lt;int&gt; 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0,
+1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1,…</code></pre>
+<pre class="r"><code>FullData&lt;-full_join(TeenPregnancy, Election16, by=c(&quot;State&quot;))
+FullData &lt;-FullData %&gt;% 
+  mutate(CivilWar=recode_factor(CivilWar,&quot;U&quot;=&quot;Union&quot;,&quot;O&quot;=&quot;Other&quot;,&quot;C&quot;=&quot;Confederate&quot;,&quot;B&quot;=&quot;Border&quot;))
+glimpse(FullData)</code></pre>
+<pre><code>## Observations: 50
+## Variables: 10
+## $ State &lt;fct&gt; AK, AL, AR, AZ, CA, CO, CT, DE, FL, GA,
+HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, …
+## $ CivilWar &lt;fct&gt; Other, Confederate, Confederate, Other,
+Union, Other, Union, Union, Confederate,…
+## $ Church &lt;int&gt; 26, 46, 45, 33, 28, 25, 25, 35, 32, 39,
+25, 32, 34, 32, 35, 33, 41, 46, 22, 31, …
+## $ Teen &lt;int&gt; 64, 62, 73, 60, 59, 50, 44, 67, 60, 64, 65,
+44, 47, 57, 53, 53, 62, 69, 37, 57, …
+## $ Income &lt;int&gt; 72515, 43623, 41371, 50255, 61818, 60629,
+70331, 60509, 47507, 49620, 69515, 531…
+## $ HS &lt;dbl&gt; 92.1, 84.3, 84.8, 86.0, 81.8, 90.7, 89.9,
+88.4, 86.9, 85.4, 91.0, 91.5, 89.5, 87…
+## $ BA &lt;dbl&gt; 28.0, 23.5, 21.1, 27.5, 31.4, 38.1, 37.6,
+30.0, 27.3, 28.8, 30.8, 26.7, 25.9, 32…
+## $ Adv &lt;dbl&gt; 10.1, 8.7, 7.5, 10.2, 11.6, 14.0, 16.6,
+12.2, 9.8, 10.7, 10.5, 8.5, 8.2, 12.4, 8…
+## $ Dem.Rep &lt;int&gt; -17, -17, -7, -1, 16, -1, 11, 6, 1, -4,
+21, -3, -30, 11, -6, -13, -3, -2, 19, 15…
+## $ TrumpWin &lt;int&gt; 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1,
+0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1,…</code></pre>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>These are previously merged datasets from Project 1. The first dataset was rates of teenage girls pregnant per 1000 teenage girls in each state, with other variables such as Civil War status and percentage of church goers. The other dataset was states that voted for Trump in the 2016 election, with variables such as income per capita, percent high school graduates, percent college graduates, percent with advanced degrees, and Democratic-Republican lean.</p>
+</div>
+<div id="manova" class="section level1">
+<h1>Manova</h1>
+<p>##Manova Test</p>
+<pre class="r"><code>manovatest&lt;-manova(cbind(Church,Income,Teen,Dem.Rep,HS,BA,Adv)~CivilWar, data=FullData)
+summary(manovatest)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## CivilWar 3 1.0733 3.3426 21 126 1.375e-05 ***
+## Residuals 46
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>Using a MANOVA, the effect of Civil War status on the Church goers, income, teenage pregnancy rates, Democractic Republican lean, high school graduates, people with Bachelors degrees, and people with advanced degrees was determined. The MANOVA test was significant meaning for at least one response variable, at least one group mean differs on the basis of Civil War status.</p>
+<p>##Anova Test</p>
+<pre class="r"><code>summary.aov(manovatest)</code></pre>
+<pre><code>## Response Church :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 1320.4 440.14 14.125 1.17e-06 ***
+## Residuals 46 1433.4 31.16
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Income :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 1064049282 354683094 5.7036 0.002092 **
+## Residuals 46 2860560216 62186092
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Teen :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 2110.5 703.52 7.1063 0.0005073 ***
+## Residuals 46 4554.0 99.00
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Dem.Rep :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 2396.0 798.68 6.2303 0.001218 **
+## Residuals 46 5896.8 128.19
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response HS :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 177.17 59.058 9.3498 6.139e-05 ***
+## Residuals 46 290.56 6.316
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response BA :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 332.57 110.857 5.9273 0.00166 **
+## Residuals 46 860.32 18.703
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Adv :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## CivilWar 3 91.58 30.5265 5.8559 0.001787 **
+## Residuals 46 239.80 5.2129
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>FullData%&gt;%group_by(CivilWar)%&gt;%
+  summarize(mean(Church),mean(Income),mean(Teen),mean(Dem.Rep),mean(HS),mean(BA),mean(Adv))</code></pre>
+<pre><code>## # A tibble: 4 x 8
+## CivilWar `mean(Church)` `mean(Income)` `mean(Teen)`
+`mean(Dem.Rep)` `mean(HS)` `mean(BA)`
+## &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Union 28.3 58390.  48.2 5.95 89.2 31.8
+## 2 Other 31.2 55199.  55.1 -9.27 89.6 28.1
+## 3 Confede… 41.2 47511.  64.6 -5.91 84.9 26.1
+## 4 Border 38.3 46264 61.7 -8 86.5 24.5
+## # … with 1 more variable: `mean(Adv)` &lt;dbl&gt;</code></pre>
+<p>Using the ANOVA, all of them are significant without the corrected Bonferroni. When using the corrected p-value, Dem.Rep, Income, Bachelors degrees, and Advanced degrees do not show significant differences between different levels of the categorical variables.</p>
+<p>##T-Tests</p>
+<pre class="r"><code>pairwise.t.test(FullData$Church,FullData$CivilWar, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$Church and FullData$CivilWar 
+## 
+##             Union   Other   Confederate
+## Other       0.1356  -       -          
+## Confederate 1.5e-07 4.5e-05 -          
+## Border      0.0057  0.0492  0.4374     
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$Income,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$Income and FullData$CivilWar 
+## 
+##             Union   Other   Confederate
+## Other       0.23754 -       -          
+## Confederate 0.00056 0.01789 -          
+## Border      0.01640 0.07978 0.80920    
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$Teen,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$Teen and FullData$CivilWar 
+## 
+##             Union   Other Confederate
+## Other       0.048   -     -          
+## Confederate 5.8e-05 0.019 -          
+## Border      0.034   0.300 0.649      
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$Dem.Rep,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$Dem.Rep and FullData$CivilWar 
+## 
+##             Union   Other   Confederate
+## Other       0.00025 -       -          
+## Confederate 0.00716 0.45883 -          
+## Border      0.05181 0.86037 0.77804    
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$HS,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$HS and FullData$CivilWar 
+## 
+##             Union   Other   Confederate
+## Other       0.691   -       -          
+## Confederate 3.3e-05 2.8e-05 -          
+## Border      0.085   0.059   0.342      
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$BA,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$BA and FullData$CivilWar 
+## 
+##             Union   Other   Confederate
+## Other       0.01523 -       -          
+## Confederate 0.00086 0.23820 -          
+## Border      0.00867 0.19060 0.57714    
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(FullData$Adv,FullData$CivilWar,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  FullData$Adv and FullData$CivilWar 
+## 
+##             Union  Other  Confederate
+## Other       0.0015 -      -          
+## Confederate 0.0021 0.8674 -          
+## Border      0.0286 0.6932 0.7783     
+## 
+## P value adjustment method: none</code></pre>
+<p>Pairwise t-tests were used for post hoc analysis to find significant differences in groups using corrected p-value. For churchgoers and high school graduates, Conferate and Union and Confederate and Other differed significantly. For Income, Bachelors degrees, and Teen pregnancy, Confederate and Union differed significantly. For Democratic Republican lean, only Union and Other differed significantly. For Advanced degress, no Civil War groups differed significantly.</p>
+<p>##Bonferroni Correction</p>
+<pre class="r"><code>1+7+(7*6) #Number of Tests</code></pre>
+<pre><code>## [1] 50</code></pre>
+<pre class="r"><code>1-0.95^50 #Probability of at least one type I error</code></pre>
+<pre><code>## [1] 0.923055</code></pre>
+<pre class="r"><code>0.05/50 #Bonferroni correction</code></pre>
+<pre><code>## [1] 0.001</code></pre>
+<p>With the Bonferroni correction, there is a 0.923055 chance of at least one type I error and the new corrected p-value will be 0.001 based on the 50 tests from 7 dependent variables and 6 unique pairs. The assumptions for MANOVA are random samples, multivariate normality of dependent variables, homogenity of within-group covariance matrices, linear relationships among dependent variables, no extreme outliers, and no mulitcollinearity. The assumptions that would probably not be met are extreme outliers and no multicollinearity because some states are on the extreme end and have values that coincide and a lot of the dependent variables are correlated with each other and show certain trends that follow each other.</p>
+</div>
+<div id="randomization-test" class="section level1">
+<h1>Randomization Test</h1>
+<p>##Creating Vectors for Randomization Test</p>
+<pre class="r"><code>Trump&lt;-FullData%&gt;%dplyr::select(TrumpWin,Teen)
+TrumpWon&lt;-Trump%&gt;%filter(TrumpWin==&quot;1&quot;)
+TrumpLost&lt;-Trump%&gt;%filter(TrumpWin==&quot;0&quot;)
+TrumpWon&lt;-as.vector(TrumpWon%&gt;%dplyr::select(-TrumpWin))
+TrumpLost&lt;-as.vector(TrumpLost%&gt;%dplyr::select(-TrumpWin))
+TrumpWon&lt;- as.numeric(TrumpWon$Teen)
+TrumpLost&lt;-as.numeric(TrumpLost$Teen)</code></pre>
+<p>##Randomization Test</p>
+<pre class="r"><code>RandomTest&lt;-data.frame(condition=c(rep(&quot;TrumpWon&quot;,30),rep(&quot;TrumpLost&quot;,20)),
+                       teen=c(TrumpWon,TrumpLost))
+
+head(RandomTest)</code></pre>
+<pre><code>##   condition teen
+## 1  TrumpWon   64
+## 2  TrumpWon   62
+## 3  TrumpWon   73
+## 4  TrumpWon   60
+## 5  TrumpWon   60
+## 6  TrumpWon   64</code></pre>
+<pre class="r"><code>ggplot(RandomTest,aes(teen,fill=condition))+
+  geom_histogram(bins=6.5)+facet_wrap(~condition,ncol=2)+theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="/Projects/Modeling-Testing-and-Predicintg_files/figure-html/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>RandomTest%&gt;%group_by(condition)%&gt;%
+  summarize(means=mean(teen))%&gt;%summarize(`mean_diff:`=diff(means))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `mean_diff:`
+##          &lt;dbl&gt;
+## 1         5.42</code></pre>
+<pre class="r"><code>rand_dist&lt;-vector()
+
+for(i in 1:5000){
+new&lt;-data.frame(teen=sample(RandomTest$teen),condition=RandomTest$condition) 
+rand_dist[i]&lt;-mean(new[new$condition==&quot;TrumpWon&quot;,]$teen)-
+              mean(new[new$condition==&quot;TrumpLost&quot;,]$teen)}
+
+{hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = 5.416667,col=&quot;red&quot;)}</code></pre>
+<p><img src="/Projects/Modeling-Testing-and-Predicintg_files/figure-html/unnamed-chunk-7-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean(rand_dist&gt;5.416667)*2 #P-value</code></pre>
+<pre><code>## [1] 0.1092</code></pre>
+<pre class="r"><code>t.test(data=RandomTest,teen~condition)</code></pre>
+<pre><code>##
+## Welch Two Sample t-test
+##
+## data: teen by condition
+## t = -1.5625, df = 34.385, p-value = 0.1273
+## alternative hypothesis: true difference in means is not
+equal to 0
+## 95 percent confidence interval:
+## -12.458864 1.625531
+## sample estimates:
+## mean in group TrumpLost mean in group TrumpWon
+## 51.45000 56.86667</code></pre>
+<p>The null hypothesis is that the mean of teen pregnancy for states that Trump Won is the same for states that Trump Lost. The alternative hypothesis is that the mean of teen pragnancy for states that Trump Won is different than that of states that Trump lost. A randomization test was conducted using repeated random sampling. The pvalue is not significant so we accept the null and say that the two means are not significantly different.</p>
+<p>#Linear Regression Model</p>
+<pre class="r"><code>FullData$HS_c&lt;-FullData$HS-mean(FullData$HS)
+
+fit&lt;-lm(Teen~TrumpWin*HS_c,data=FullData)
+summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = Teen ~ TrumpWin * HS_c, data = FullData)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -15.1851 -4.4022 -0.6697 2.8399 20.3182
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 53.0695 1.8011 29.465 &lt; 2e-16 ***
+## TrumpWin 2.8775 2.3147 1.243 0.220
+## HS_c -3.0215 0.6281 -4.811 1.66e-05 ***
+## TrumpWin:HS_c 0.4480 0.7769 0.577 0.567
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 7.913 on 46 degrees of freedom
+## Multiple R-squared: 0.5678, Adjusted R-squared: 0.5396
+## F-statistic: 20.15 on 3 and 46 DF, p-value: 1.755e-08</code></pre>
+<pre class="r"><code>ggplot(FullData, aes(x=HS_c, y=Teen,group=TrumpWin))+geom_point(aes(color=TrumpWin))+
+  geom_smooth(method=&quot;lm&quot;,formula=y~1,se=F,fullrange=T,aes(color=TrumpWin))+
+theme(legend.position=c(.9,.19))+xlab(&quot;&quot;)</code></pre>
+<p><img src="/Projects/Modeling-Testing-and-Predicintg_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;" />
+Controlling for Trump Win, on average, every one unit increase in high school graduates, there is a 3.0215 decrease in teenage pregnancy. Controlling for high school graduates, 2.8775 is the difference in Teenage pregnancy rates for Trump Win and Trump Lose states. The intercept means that if all else equals zero, teenage pregnancy rate will be 53.0695. The interaction shows the difference in slopes for Trump Win and Trump Lose when not controlling for high school graduates. The slope for Trump Lose would just be -3.015, while the slope for Trump Win is (-3.015+.448)=(-2.5735). The proportion of variation explained is the R squared value, which is 0.5678.</p>
+<p>##Assumptions</p>
+<pre class="r"><code>library(sandwich); library(lmtest)
+resids&lt;-fit$residuals
+
+#Homoskedasticity
+bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 8.0347, df = 3, p-value = 0.0453</code></pre>
+<pre class="r"><code>#linearity
+shapiro.test(resids)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.96461, p-value = 0.1387</code></pre>
+<pre class="r"><code>#Normality
+ks.test(resids, &quot;pnorm&quot;, mean=0,sd(resids)) </code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resids
+## D = 0.11921, p-value = 0.442
+## alternative hypothesis: two-sided</code></pre>
+<pre class="r"><code>#Corrected SE
+coeftest(fit,vcov=vcovHC(fit)) </code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 53.0695 2.7292 19.4449 &lt; 2e-16 ***
+## TrumpWin 2.8775 3.0324 0.9489 0.34762
+## HS_c -3.0215 1.2046 -2.5084 0.01572 *
+## TrumpWin:HS_c 0.4480 1.2866 0.3482 0.72928
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>The regression is not homoskedastic, but is linear and normal. There is no difference between before and after the robust SE for any of the coefficients, however, all of the standard errors increase slightly, meaning the t-value would go down and that, therefore, the p-value would go up.</p>
+</div>
+<div id="linear-regression-model-with-bootstrapped-standard-errors" class="section level1">
+<h1>Linear Regression Model with Bootstrapped Standard Errors</h1>
+<pre class="r"><code>samp_distn&lt;-replicate(5000, {
+ boot_dat&lt;-FullData[sample(nrow(FullData),replace=TRUE),]
+ fit&lt;-lm(Teen~TrumpWin*HS_c,data=boot_dat)
+ coef(fit)
+})
+samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept) TrumpWin      HS_c TrumpWin:HS_c
+## 1    2.329624 2.633616 0.9780142      1.064466</code></pre>
+<p>These boot strapped SEs are all larger than the original SEs, but they are all smaller than the robust SEs. Because the standard errors are smaller than the robust standard errors, they have a larger t-value and thus a smaller p-value, which is better because it is harder to reject the null. This is the opposite thinking of the original SEs.</p>
+</div>
+<div id="logistic-regression" class="section level1">
+<h1>Logistic Regression</h1>
+<p>##Classification Diagnostics</p>
+<pre class="r"><code>library(MASS)
+library(lmtest)
+class_diag&lt;-function(probs,truth){
+ tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+ acc=sum(diag(tab))/sum(tab)
+ sens=tab[2,2]/colSums(tab)[2]
+ spec=tab[1,1]/colSums(tab)[1]
+ ppv=tab[2,2]/rowSums(tab)[2]
+ if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+
+ ord&lt;-order(probs, decreasing=TRUE)
+ probs &lt;- probs[ord]; truth &lt;- truth[ord]
+ TPR=cumsum(truth)/max(1,sum(truth))
+ FPR=cumsum(!truth)/max(1,sum(!truth))
+ dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+ TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+ n &lt;- length(TPR)
+ auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+ data.frame(acc,sens,spec,ppv,auc)
+} </code></pre>
+<p>##Logististic Regression</p>
+<pre class="r"><code>bindat&lt;-FullData%&gt;%dplyr::select(TrumpWin,HS,Teen)
+fit&lt;-glm(TrumpWin~(.),data=bindat,family=&quot;binomial&quot;)
+coeftest(fit)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##              Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -6.103444  14.679997 -0.4158   0.6776
+## HS           0.042537   0.147462  0.2885   0.7730
+## Teen         0.050813   0.039637  1.2820   0.1999</code></pre>
+<pre class="r"><code>exp(coef(fit))</code></pre>
+<pre><code>## (Intercept)          HS        Teen 
+## 0.002235157 1.043454821 1.052126444</code></pre>
+<pre class="r"><code>prob&lt;-predict(fit,type=&quot;response&quot;)
+class_diag(prob,bindat$TrumpWin)</code></pre>
+<pre><code>##    acc      sens spec       ppv       auc
+## 1 0.66 0.8666667 0.35 0.6666667 0.6516667</code></pre>
+<p>Controlling for high school graduates, every 1 unit increase in teenage pregnancy, odds of Trump Win change by a factor of 1.05212=e^0.0508. Controlling for teenage pregnancy, every 1 unit increase in high school graduates, odds of Trump Win change by a factor of 1.0435=e^0.042537. The accuracy was 0.66, sensitivity was 0.867, specificity was 0.35, and ppv was 0.667.</p>
+<p>##Confusion Matrix</p>
+<pre class="r"><code>bindat$prob&lt;-predict(fit,type=&quot;response&quot;)
+table(predict=as.numeric(bindat$prob&gt;.5),truth=bindat$TrumpWin)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict  0  1 Sum
+##     0    7  4  11
+##     1   13 26  39
+##     Sum 20 30  50</code></pre>
+<p>##Plot Density of Log-Odds (logit) By Binary Outcome Variable</p>
+<pre class="r"><code>data&lt;-bindat
+data$TrumpWin</code></pre>
+<pre><code>## [1] 1 1 1 1 0 0 0 0 1 1 0 1 1 0 1 1 1 1 0 0 0 1 0 1 1 1
+1 1 1 0 0 0 0 0 1 1 0 1 0 1 1 1 1 1 0 0 0 1
+## [49] 1 1</code></pre>
+<pre class="r"><code>data$TrumpWin&lt;-as.factor(data$TrumpWin)
+data$logit&lt;-predict(fit,type=&quot;link&quot;)
+
+data%&gt;%ggplot()+geom_density(aes(logit,color=TrumpWin,fill=TrumpWin), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab(&quot;predictor (logit)&quot;)</code></pre>
+<p><img src="/Projects/Modeling-Testing-and-Predicintg_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>##ROC Curve</p>
+<pre class="r"><code>data$prob&lt;-predict(fit,type = &quot;response&quot;)
+sens&lt;-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==1,]$prob&gt;p)
+spec&lt;-function(p,data=data, y=TrumpWin) mean(data[data$TrumpWin==0,]$prob&lt;p)
+sensitivity&lt;-sapply(seq(0,1,.01),sens,data)
+specificity&lt;-sapply(seq(0,1,.01),spec,data)
+
+ROC1&lt;-data.frame(sensitivity,specificity,cutoff=seq(0,1,.01))
+
+ROC1$TPR&lt;-sensitivity
+ROC1$FPR&lt;-1-specificity
+ROC1%&gt;%ggplot(aes(FPR,TPR))+geom_path(size=1.5)+geom_segment(aes(x=0,y=0,xend=1,yend=1),lty=2)+
+ scale_x_continuous(limits = c(0,1))</code></pre>
+<p><img src="/Projects/Modeling-Testing-and-Predicintg_files/figure-html/unnamed-chunk-15-1.png" width="768" style="display: block; margin: auto;" />
+The ROC curve shows that this is not a very good predictor because the line shows that the true positive rate almost follows the false positive rate.</p>
+<p>##AUC</p>
+<pre class="r"><code>widths&lt;-diff(ROC1$FPR)
+heights&lt;-vector()
+for(i in 1:100) heights[i]&lt;-ROC1$TPR[i]+ROC1$TPR[i+1]
+AUC&lt;-sum(heights*widths/2)
+AUC%&gt;%round(3)</code></pre>
+<pre><code>## [1] -0.651</code></pre>
+<p>The AUC is 0.651 which is not a very good predictor. The AUC is the probability that a randomly selected state who voted for Trump has a higher prediction than a randomly selected state that didn’t vote for Trump.</p>
+<p>##10-Fold CV</p>
+<pre class="r"><code>set.seed(1234)
+k=5 
+data1&lt;-bindat[sample(nrow(bindat)),]
+folds&lt;-cut(seq(1:nrow(bindat)),breaks=k,labels=F)
+diags&lt;-NULL
+for(i in 1:k){
+ train&lt;-data1[folds!=i,]
+ test&lt;-data1[folds==i,]
+ truth&lt;-test$TrumpWin
+ fit&lt;-glm(TrumpWin~(.),data=train,family=&quot;binomial&quot;)
+ probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+ diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+apply(diags,2,mean) </code></pre>
+<pre><code>##       acc      sens      spec       ppv       auc 
+## 0.6200000 0.8100000 0.3266667 0.6464286 0.5213333</code></pre>
+<p>For the 10-fold, there had to be an adjustment to 5-fold. The accuracy was 0.58, sensitivity was 0.747, and the recall was 0.587.</p>
+</div>
+<div id="lasso-regression" class="section level1">
+<h1>LASSO Regression</h1>
+<p>##LASSO</p>
+<pre class="r"><code>library(glmnet)
+library(boot)
+library(foreach)
+fit&lt;-glm(TrumpWin~(.),data=FullData)
+x&lt;-model.matrix(fit)
+y&lt;-as.matrix(FullData$TrumpWin)
+
+cv&lt;-cv.glmnet(x,y,family=&quot;binomial&quot;)
+lasso&lt;-glmnet(x,y,family=&quot;binomial&quot;,lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 62 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                              s0
+## (Intercept)          2.37001245
+## (Intercept)          .         
+## StateAL              .         
+## StateAR              .         
+## StateAZ              .         
+## StateCA              .         
+## StateCO              .         
+## StateCT              .         
+## StateDE              .         
+## StateFL              .         
+## StateGA              .         
+## StateHI              .         
+## StateIA              .         
+## StateID              .         
+## StateIL              .         
+## StateIN              .         
+## StateKS              .         
+## StateKY              .         
+## StateLA              .         
+## StateMA              .         
+## StateMD              .         
+## StateME              .         
+## StateMI              .         
+## StateMN              .         
+## StateMO              .         
+## StateMS              .         
+## StateMT              .         
+## StateNC              .         
+## StateND              .         
+## StateNE              .         
+## StateNH              .         
+## StateNJ              .         
+## StateNM              .         
+## StateNV              .         
+## StateNY              .         
+## StateOH              .         
+## StateOK              .         
+## StateOR              .         
+## StatePA              .         
+## StateRI              .         
+## StateSC              .         
+## StateSD              .         
+## StateTN              .         
+## StateTX              .         
+## StateUT              .         
+## StateVA              .         
+## StateVT              .         
+## StateWA              .         
+## StateWI              .         
+## StateWV              .         
+## StateWY              .         
+## CivilWarOther        .         
+## CivilWarConfederate  .         
+## CivilWarBorder       .         
+## Church               0.04450452
+## Teen                 .         
+## Income               .         
+## HS                   .         
+## BA                  -0.03370593
+## Adv                 -0.22664949
+## Dem.Rep             -0.04279579
+## HS_c                 .</code></pre>
+<p>Church, BA, Adv, Income, and Dem.Rep all had values for the lasso and so they are retained.</p>
+<p>##10-Fold CV</p>
+<pre class="r"><code>set.seed(1234)
+k=5
+data1&lt;-FullData[sample(nrow(FullData)),] 
+folds&lt;-cut(seq(1:nrow(FullData)),breaks=k,labels=F) 
+diags&lt;-NULL
+for(i in 1:k){
+ train&lt;-data1[folds!=i,]
+ test&lt;-data1[folds==i,]
+ truth&lt;-test$TrumpWin
+ fit&lt;-glm(TrumpWin~Church+BA+Adv+Dem.Rep,data=train,family=&quot;binomial&quot;)
+ probs&lt;-predict(fit,newdata=test,type=&quot;response&quot;)
+ preds&lt;-ifelse(probs&gt;.5,1,0)
+ 
+ diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+diags%&gt;%summarise_all(mean)</code></pre>
+<pre><code>##    acc sens      spec       ppv   auc
+## 1 0.84 0.91 0.7533333 0.8539683 0.942</code></pre>
+<p>The accuracy was 0.58 and has now increased to 0.84, which is substantial.</p>
+</div>
